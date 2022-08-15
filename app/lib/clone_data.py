@@ -69,7 +69,7 @@ def check_form(path, host, token):
     return result
 
 def update_submission(path, data, host, token):
-    submission_id = get_submission_id(path, data, host, token)
+    submission_id = get_submission_id(path, host, token)
     url = f'{host}/{path}/submission'
     try:
         if submission_id == None:
@@ -80,20 +80,11 @@ def update_submission(path, data, host, token):
         print(ex)
     return submission_id
 
-def get_submission_id(path, test_data, host, token):
+def get_submission_id(path, host, token):
     result = None
     index_field = None
-    key_value = None
+    key_value = get_form_keyfield(path, host, token)
     try:
-        if 'eloque_id' in test_data['data']:
-            index_field = 'eloque_id'
-            key_value = test_data['data']['eloque_id']
-        elif 'id' in test_data['data']:
-            index_field = 'id'
-            key_value = test_data['data']['id']
-        elif 'email' in test_data['data']:
-            index_field = 'email'
-            key_value = test_data['data']['email']
         if index_field != None:
             url = f'{host}/{path}/exists?data.{index_field}={key_value}'
             r = requests.get(url, headers={"x-jwt-token": token})
@@ -102,6 +93,17 @@ def get_submission_id(path, test_data, host, token):
     except Exception as ex:
         print(f'look error: {ex}')
 
+    return result
+
+def get_form_keyfield(path, host, token):
+    result = 'id'
+    # Use form path to determine field to match
+    try:
+        url = f'http://{host}/app-forms/submission?data.id={path}&select=data.keyfield'
+        r = requests.get(url, headers={"x-jwt-token": token})
+        result = r.json()[0]['data']['keyfield']
+    except Exception as ex:
+        result = None
     return result
 
 def get_forms_by_tags(tags, host, token):
@@ -160,7 +162,6 @@ for form in submissions_to_pull:
 print(f'** Create local user with Admin - user: {args["local_user"]} password: {args["local_password"]}')
 data = {"data": {
         "accessGroups": [
-        "bridges", 
         "allForms", 
         "allowDelete", 
         "allowCopy", 

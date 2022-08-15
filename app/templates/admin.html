@@ -16,12 +16,12 @@
     <tr><td><button class="button wide blue" onclick="NewTab('/app/tool/reference/sensor-types','_admin')">Sensor Types</td><td>Pre-packaged Sensors for inclusion in Mapping: Sensors. Inventory of sensors with vendor, model and connection with link to data sheets</td></tr>
     {% endif %}
     {% if 'sensor-layout' in form_access %}
-    <tr><td><button class="button wide blue" onclick="NewTab('/app/tool/reference/sensor-layout','_admin')">Sensor Layouts</td><td>Location definitions for various components. Will vary from component to component based on possible locations and their specifics on a bridge</td></tr>
+    <tr><td><button class="button wide blue" onclick="NewTab('/app/tool/reference/sensor-layout','_admin')">Sensor Layouts</td><td>Location definitions for various components. Will vary from component to component based on possible locations and their specifics on a asset</td></tr>
     {% endif %}
     {% if 'view' in form_access %}
     <tr><td colspan=2><b>Submissions</b></td></tr>
     <tr><td><button class="button wide blue" onclick="NewTab('/app/tool/view','_view')">Views</td><td>Form submission views. Use to add new Form Submission views from which to update existing submissions, create new submissions, or link to related forms or external URLs.</td></tr>
-    <tr><td><button class="button wide blue" onclick="NewTab('/app/tool/tools','_admin')">Submissions</td><td>All submissions of Bridge Overview, Mapping: Design, DIS As-Design, DIS As-Built</td></tr>
+    <tr><td><button class="button wide blue" onclick="NewTab('/app/tool/tools','_admin')">Submissions</td><td>All submissions of Asset Overview, Mapping: Design, DIS As-Design, DIS As-Built</td></tr>
     {% endif %}
 
     {% if 'user' in form_access or 'company' in form_access or 'user' in form_access %}

@@ -17,8 +17,8 @@ class Config(object):
     MESSAGE_FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
     LOGGING_LEVEL = 'INFO'
 
-    FORMIO_URL = '54.79.191.17:3001'
-    OPS_PORTAL_URL = 'https://configure.eloque.com'
+    FORMIO_URL = ''
+    OPS_PORTAL_URL = ''
 
     ADMIN_USER = 'admin@example.com'
     ADMIN_PASSWORD = 'CHANGEME'

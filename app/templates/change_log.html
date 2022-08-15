@@ -4,7 +4,7 @@
      <script type="text/javascript" charset="utf8" src="/app/static/jquery-3.6.0.min.js"></script>
      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
      <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.js"></script>
-     <title>Change Log {{bridge}}</title>
+     <title>Change Log {{asset}}</title>
      <style>
         body{
             background:#ddd;
@@ -66,7 +66,7 @@
   </head>
   <body>
     <div class="home" id="output" style="visibility:hidden"></div>
-    <b class="pageName">Change Log for {{bridge}}</b>
+    <b class="pageName">Change Log for {{asset}}</b>
 
     <table id="submissions" class="display">
     <thead>
@@ -119,24 +119,6 @@
         $(".popup_body").removeClass("popup_body_show");
         });
      
-
-    function sendData(action, path, id, new_id) {
-
-        var http = new XMLHttpRequest();
-        http.onreadystatechange = async function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("output").innerHTML = this.responseText;
-                document.getElementById("output").style.visibility = "visible";
-                await new Promise(r => setTimeout(r, 2000));
-                location.reload();
-            }
-        };
-        let data = '{"action": "' + action + '", "path": "' + path + '", "keyfield": "eloque_id", "id": "' + id + '", "new_id": "' + new_id + '"}';
-
-        http.open('POST', 'action/submission', true);
-        http.setRequestHeader('content-type', 'application/json;charset=UTF-8');
-        http.send(JSON.stringify(data));
-    }
-</script>
+  </script>
 </body>
 </html>

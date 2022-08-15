@@ -1,15 +1,15 @@
 {
     "excel-version": "{{data.json_template}}",
-    "bridge": {
-        "type": "{{data.eloque_id}}",
+    "asset": {
+        "type": "{{data.index_id}}",
         "classification": "{% for c in data.classification %}{{c}} {% endfor %}",
-        "fibridge-status": "{{data.fibridge_status}}",
-        "fibridge-built": "{{data.fibridge_built}}",
+        "fiasset-status": "{{data.fiasset_status}}",
+        "fiasset-built": "{{data.fiasset_built}}",
         "coordinates": [
             -37.95233,
             143.34807
         ],
-        "feature_crossed": "{{data.bridge_name}}",
+        "feature_crossed": "{{data.asset_name}}",
         "road_name": "",
         "skew_angle": 0,
         "directions_mapping": {

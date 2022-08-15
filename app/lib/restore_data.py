@@ -69,7 +69,7 @@ def check_form(path, host, token):
     return result
 
 def update_submission(path, host, token, data):
-    submission_id = get_submission_id(path, host, token, data)
+    submission_id = get_submission_id(path, host, token)
     url = f'{host}/{path}/submission'
     r = {}
     try:
@@ -86,29 +86,30 @@ def update_submission(path, host, token, data):
         print(f'{ex} {r}')
     return submission_id
 
-def get_submission_id(path, host, token, data):
+def get_submission_id(path, host, token):
     result = None
     index_field = None
-    key_value = None
-    url = ''
+    key_value = get_form_keyfield(path, host, token)
     try:
-        if 'eloque_id' in data['data']:
-            index_field = 'eloque_id'
-            key_value = data['data']['eloque_id']
-        elif 'id' in data['data']:
-            index_field = 'id'
-            key_value = data['data']['id']
-        elif 'email' in data['data']:
-            index_field = 'email'
-            key_value = data['data']['email']
         if index_field != None:
             url = f'{host}/{path}/exists?data.{index_field}={key_value}'
             r = requests.get(url, headers={"x-jwt-token": token})
             if r.text != 'Not found':
                 result = r.json()['_id']
     except Exception as ex:
-        print(f'look error: {ex} {url}')
+        print(f'look error: {ex}')
 
+    return result
+
+def get_form_keyfield(path, host, token):
+    result = 'id'
+    # Use form path to determine field to match
+    try:
+        url = f'http://{host}/app-forms/submission?data.id={path}&select=data.keyfield'
+        r = requests.get(url, headers={"x-jwt-token": token})
+        result = r.json()[0]['data']['keyfield']
+    except Exception as ex:
+        result = None
     return result
 
 def get_data(dir, path):

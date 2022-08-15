@@ -1,10 +1,10 @@
 {
     "excel-version": "{{data.json_template}}",
-    "bridge": {
-        "type": "{{data.eloque_id}}",
+    "asset": {
+        "type": "{{data.index_id}}",
         "classification": "{% for c in data.classification %}{{c}} {% endfor %}",
-        "fibridge-status": "{{data.fibridge_status}}",
-        "fibridge-built": "{{data.fibridge_built[0:10]}}",
+        "fiasset-status": "{{data.fiasset_status}}",
+        "fiasset-built": "{{data.fiasset_built[0:10]}}",
         "coordinates": [
             {{data.coordinates_latitude}},
             {{data.coordinates_longitude}}

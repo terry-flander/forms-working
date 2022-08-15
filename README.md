@@ -1,22 +1,21 @@
-OPS Portal
+Forms Working
 ===============================
-The OPS Portal provides a unified platform for managing Eloque assets information through the following stages:
-- Initial Design
-- Preliminary mapping of fibers and sensor layouts
-- Generation of DIS As-Designed documentation
-- Generation of DIS As -Built documentation
-- Integration to meta-data repositories including Analytics and Transpara
-- Integration to external drafting tools, i.e. AutoCAD
+The Forms Working Development Environment provides a unified platform which enables the form.io Forms Designer with a complete Python Flask based website and provide:
+
+- Separate Forms and Data Tenency for multiple applications and data
+- User defined views of application data
+- Unlimited number of forms and resources supported
+- Full role based user security of tenents, views and form submissions
+- Managed support for local development and promtes shared environments -- testing, stageing, production, etc.
 
 SERVER ENVIRONMENT
 
-The two AWS components required for server installation are:
-1. EC2 Instance connected through a load balancer to the FQDNS console.eloque.com
-2. MongoDB Atlas managed instance
+A single AWS EC2 instance can support the application, however if the DB needs to be managed separately, it is best to use either a service (Atlas or AWS) or a separate EC2 instance if self-managed. The production configuration included presumes the DB is in a separate instance.
 
-The ops-oportal application uses Docker to support instances of:
+Forms Working uses Docker to support instances of:
 - nginx -- secure front-end webserver
 - form.io -- API
+- MongoDB -- if installed in the same EC2 instancfe
 
 INSTALLATION INSTRUCTIONS
 
@@ -97,7 +96,7 @@ from https://github.com/formio/formio/archive/refs/heads/master.zip
    ```
 4. Git clone ops-portal repo
    ```
-   git clone https://git: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@github.com/FiBridge/ops-portal.git
+   git clone https://github.com/terry-flander/forms-working.git
    ```
 5. Install Python Libraries
    ```
@@ -111,21 +110,17 @@ from https://github.com/formio/formio/archive/refs/heads/master.zip
 7. Install node libraries required
    ```
    npm install
-   docker-compose up
    ```
-8. Start ops-portal
+8. Start forms-working
    ```
    mkdir tmp
-   ./webserver start production
+   ./start
    ```
-Note that the start script execuites the following command and can also be used to stop or restart the server with ``./start stop`` and  ``./start restart production`` respectively.
+Note that the ``start`` script executes the following command which can be used to stop or restart just the Flask webserver with ``./server stop`` and  ``./server restart production`` respectively.
 
 NB: The ``production`` argument above is used by the configuration to use the correct configuration. Leaving this blank results in ``development`` configuration will only work locally, i.e. not in the EC2 instance.
 
-The server log file is ``tmp/webserver.log``
-   ```
-   nohup python3 -m wsgi &> tmp/webserver.log & echo $! > tmp/http.server.pid &
-   ```
+The server log file is ``tmp/webserver.log`` and the application log files is ``tmp/app_info.log``
 
 LOCAL HOST INSTALLATION
 

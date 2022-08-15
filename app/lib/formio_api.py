@@ -21,11 +21,6 @@ app_logger = setup_logger('info', 'tmp/app_info.log', logging.INFO)
 '''
 Shared Static Names for parts of the application
 '''
-BRIDGE_OVERVIEW = os.environ.get('BRIDGE_OVERVIEW')
-MAPPING_DESIGN = os.environ.get('MAPPING_DESIGN')
-DIS_AS_DESIGN = os.environ.get('DIS_AS_DESIGN')
-DIS_AS_BUILT = os.environ.get('DIS_AS_BUILT')
-
 FORMIO_URL = os.environ.get('FORMIO_URL')
 
 ADMIN_USER = os.environ.get('ADMIN_USER')
@@ -193,7 +188,7 @@ def rename_reference(keyfield, id, new_id, user_token):
     result = 'ok'
     '''
     * TODO : Rewrite this to take input list of forms from workflow?
-    for path in [BRIDGE_OVERVIEW, MAPPING_DESIGN, DIS_AS_DESIGN,DIS_AS_BUILT]:
+    for path in [<path-list>]:
         if get_submission_id(path, keyfield, new_id) != 'new':
             return f'Reference {new_id} already exists'
         from_submission = get_submission(path, id)
@@ -207,7 +202,7 @@ def rename_reference(keyfield, id, new_id, user_token):
     
     # Copy existing to new all worked. Delete original submissions.
     if result == 'ok':
-        for path in [BRIDGE_OVERVIEW, MAPPING_DESIGN, DIS_AS_DESIGN,DIS_AS_BUILT]:
+        for path in [<path-list>]:
             delete_submission(path, keyfield, id)
     '''
     return result
@@ -555,7 +550,7 @@ def logEvent(bi, res, path, action, comment, token):
         }
 
     admin_token = get_formio_login()
-    url = f'http://{FORMIO_URL}/bridge-design-change-log/submission'
+    url = f'http://{FORMIO_URL}/change-log/submission'
     r = requests.post(url, json=eventData, headers={"x-jwt-token": admin_token})
     debug_logger.debug(f'{path}')
     return r.json()

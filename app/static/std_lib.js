@@ -8,7 +8,7 @@ function get_asset_list_std(type, target) {
       document.getElementById(target).style.visibility = "visible";
     }
   };
-  data = '{"action": "' + type + '", "bridge": "", "options": ""}'
+  data = '{"action": "' + type + '", "asset": "", "options": ""}'
   http.open('POST', 'get_asset_list', true);
   http.setRequestHeader('content-type', 'application/json;charset=UTF-8');
   http.send(JSON.stringify(data));
@@ -23,7 +23,7 @@ function get_asset_select(select_target, select_id) {
         document.getElementById(select_target).style.visibility = "visible";
       }
     };
-    data = '{"action": "options", "bridge": "", "options": ""}'
+    data = '{"action": "options", "asset": "", "options": ""}'
     http.open('POST', 'get_asset_list', true);
     http.setRequestHeader('content-type', 'application/json;charset=UTF-8');
     http.send(JSON.stringify(data));

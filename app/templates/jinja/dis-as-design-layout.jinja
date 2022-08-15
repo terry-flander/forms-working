@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>DIS: As-Design Layout {{data.eloque_id}}</title>
+    <title>DIS: As-Design Layout {{data.index_id}}</title>
     <link rel="stylesheet" href="/designer/static/dis_menu.css">
     <script type="text/javascript" charset="utf8" src="/designer/static/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
@@ -11,28 +11,28 @@
 <body>
     <header>
         <div class="container">
-            <a href="http://www.eloque.com" target="_blank">
+            <a href="/app">
                 <img src="/designer/static/logo.png" style="height: 53px; padding-top: 11px; padding-left: 24px;" />
             </a>
-            <h1 class="logo"> {{data.eloque_id}} - DIS: As-Design</h1>
+            <h1 class="logo"> {{data.index_id}} - DIS: As-Design</h1>
         </div>
     </header>
     {% set ns = namespace(items=0) %}
 
     <h1>Deployment</h1>
     <table>
-        <tr><td>Eloque ID</td><td>{{data.eloque_id}}</td><td></td></tr>
+        <tr><td>Index ID</td><td>{{data.index_id}}</td><td></td></tr>
         <tr><td>Asset ID</td><td>{{data.asset_id}}</td><td></td></tr>
         <tr><td>Sharepoint Name</td><td>{{data.sharepoint_name}}</td><td></td></tr>
         <tr><td>Excel Version</td><td>1.1.0</td><td></td></tr>
-        <tr><td>Bridge</td><td>{{data.bridge_name}}</td><td></td></tr>
+        <tr><td>Asset</td><td>{{data.asset_name}}</td><td></td></tr>
         <tr><td>RSA structure number</td><td>{{data.structure_id}}</td><td></td></tr>
         <tr><td>Type</td><td>Type</td><td></td></tr>
-        <tr><td>FiBridge Type</td><td>{% for c in data.classification %}{{c}} {% endfor %}</td><td></td></tr>
+        <tr><td>FiAsset Type</td><td>{% for c in data.classification %}{{c}} {% endfor %}</td><td></td></tr>
         <tr><td>Number of Spans</td><td>{{data.totalSpans}}</td><td></td></tr>
         <tr><td>Deck Width (m)</td><td>{{data.deck_width}}</td><td></td></tr>
-        <tr><td>FiBridge Status</td><td>Status</td><td></td></tr>
-        <tr><td>FiBridge Built</td><td>Build Date</td><td></td></tr>
+        <tr><td>FiAsset Status</td><td>Status</td><td></td></tr>
+        <tr><td>FiAsset Built</td><td>Build Date</td><td></td></tr>
         <tr><td>Coordinates</td><td>{{data.coordinates_latitude}}</td></td><td>{{data.coordinates_longitude}}</td></tr>
         <tr><td>Feature crossed</td><td>{{data.feature_crossed}}</td><td></td></tr>
         <tr><td>Road name</td><td>{{data.road_name}}</td><td></td></tr>

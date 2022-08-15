@@ -2,13 +2,13 @@
     {% set ns = namespace(items=0) %}
     {% set ns.component_type = {} %}
     "excel-version": "0.2.0",
-    "bridge": {
-        "type": "{{data.eloque_id}}",
+    "asset": {
+        "type": "{{data.index_id}}",
         "classification": "{% for c in data.classification %}{{c}} {% endfor %}",
-        "name": "{{data.bridge_name}}",
+        "name": "{{data.asset_name}}",
         "RSA structure number": "{{data.structure_id}}",
-        "fibridge-status": "TBD",
-        "fibridge-built": "TBD",
+        "fiasset-status": "TBD",
+        "fiasset-built": "TBD",
         "coordinates": [
             {{data.coordinates_latitude}},
             {{data.coordinates_longitude}}

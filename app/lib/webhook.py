@@ -20,10 +20,6 @@ from app.lib.util import setup_logger, build_error
 debug_logger = setup_logger('debug', 'tmp/app_info.log', logging.DEBUG)
 app_logger = setup_logger('info', 'tmp/app_info.log', logging.INFO)
 
-BRIDGE_OVERVIEW = os.environ.get('BRIDGE_OVERVIEW')
-DIS_AS_DESIGN = os.environ.get('DIS_AS_DESIGN')
-DIS_AS_BUILT = os.environ.get('DIS_AS_BUILT')
-
 always_trigger = ['update_initial_mapping', 'resource', 'promote_form', 'change_password']
 conditional_trigger = ['build_json', 'create_as_design', 'create_as_built', 'update_metadata', 'build_layout', 'save_excel', 'map_data', 'save_layout', 'save_map_data']
 
@@ -111,9 +107,13 @@ def get_workflows(path):
     return result
 
 '''
-CREATE OR UPDATE MAPPING:DESIGN FROM BRIDGE: OVERVIEW
+CREATE OR UPDATE WORKFLOW
+** TODO **
+    Workflow forms list to create and/or patch all connections
+    based on data entered on first form of Workflow.
 '''
 def webhook_update_initial_mapping(data, token, argument):
+   
     debug_logger.debug('save_initial_mapping...')
 
     path = 'initial-mapping'
@@ -127,19 +127,19 @@ def webhook_update_initial_mapping(data, token, argument):
 
     if doc[0] != 'None':
         formio.patch_submission(doc, 'id', id, token, argument)
-        formio.patch_one(BRIDGE_OVERVIEW, doc[2], 'id', id)
+        formio.patch_one('', doc[2], 'id', id)
 
     return 'ok'
 
 ''' 
-CREATE ORCHESTRATOR JSON FILE FROM As-Design or As-Built
+CREATE JSON FILE
 '''
 def webhook_build_json(sub, path):
 
     try:
         data = sub['submission']
         doc = jinja.render_template('template_' + data['data']['jinja_template'], data)
-        jinja.save_doc(f'bridges', path, get_id(path, data), 'json', doc)
+        jinja.save_doc(f'json', path, get_id(path, data), 'json', doc)
         return 'ok'
     except Exception as ex:
         app_logger.error(ex)
@@ -180,8 +180,8 @@ def webhook_update_metadata(path, data):
 
     if doc != None:
         try:
+            timescale_connection = ''
             # transpara_get_groups('ops');
-            timescale_connection = 'dbname=eloque user=transpara password=BorgGoesLive!22 host=13.239.79.221 port=5435'
             # timescale_connection = 'dbname=postgres user=postgres password=prototype-db-123 host=54.252.242.116 port=5432'
             timescale = Timescale()
             con_result = timescale.connect(timescale_connection)

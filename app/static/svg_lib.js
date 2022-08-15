@@ -1,5 +1,5 @@
 /* 
-    SVG routines for drawing bridge components, sensors, and fibres and adding dimenstions, etc.
+    SVG routines for drawing asset components, sensors, and fibres and adding dimenstions, etc.
     (Scalable Vector Graphics https://developer.mozilla.org/en-US/docs/Web/SVG)
 
 */

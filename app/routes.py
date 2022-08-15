@@ -347,7 +347,7 @@ def view_json(path, keyvalue):
     if get_session_logged_in() == None:
       return home()
 
-    fileName = 'bridges/' + path + '-' + keyvalue + '.json'
+    fileName = 'json/' + path + '-' + keyvalue + '.json'
     app_logger.info(fileName)
     if jinja.file_exists(fileName):
       return send_file(fileName)
@@ -372,7 +372,7 @@ def change_log(path, keyvalue):
       return home()
 
     jsonData = formio.load_change_log(path, keyvalue)
-    return render_template('change-log.html', data=jsonData, bridge=keyvalue)
+    return render_template('change_log.html', data=jsonData, keyvalue=keyvalue)
 
 @app.route('/promote_log', methods=['GET'])
 def promote_log():

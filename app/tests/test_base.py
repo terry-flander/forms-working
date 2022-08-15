@@ -9,27 +9,27 @@ class UnitTest(unittest.TestCase):
     def setUp(self):
         self.template = {
                 "data": {
-                "eloque_id": "{{data.eloque_id}}",
+                "index_id": "{{data.index_id}}",
                 "structure_id": "{{data.structure_id}}",
-                "bridge_name": "{{data.bridge_name}}",
-                "fibridge_status": "{{data.fibridge_status}}"
+                "asset_name": "{{data.asset_name}}",
+                "fiasset_status": "{{data.fiasset_status}}"
                 }
             }
         self.data = {
                 "data": {
-                "eloque_id": "eloque_id",
+                "index_id": "index_id",
                 "structure_id": "structure_id",
-                "bridge_name": "bridge_name",
-                "fibridge_status": "fibridge_status"
+                "asset_name": "asset_name",
+                "fiasset_status": "fiasset_status"
                 }
             }
         self.request = {
                 "request": {
                     "data": {
-                        "eloque_id": "eloque_id",
+                        "index_id": "index_id",
                         "structure_id": "structure_id",
-                        "bridge_name": "bridge_name",
-                        "fibridge_status": "fibridge_status"
+                        "asset_name": "asset_name",
+                        "fiasset_status": "fiasset_status"
                     }
                 }
             }

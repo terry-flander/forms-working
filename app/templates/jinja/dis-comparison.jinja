@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>DIS Comparison {{data[0].eloque_id}}</title>
+    <title>DIS Comparison {{data[0].index_id}}</title>
     <link rel="stylesheet" href="/designer/static/menu.css">
     <script type="text/javascript" charset="utf8" src="/designer/static/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.tables.net/v/dt/dt-1.11.3/tables.min.css"/>
@@ -55,17 +55,17 @@
     {% set ns = namespace(x=0, y=0) %}
 
     <div style="background-color:#1A2B45; height: 75px; ">
-        <a href="http://www.eloque.com" target="_blank">
+        <a href="/app">
             <img src="/designer/static/logo.png" style="height: 53px; padding-top: 11px; padding-left: 24px;" />
         </a>
     </div>
     <div style="margin: 10px;">
-    <h1>DIS Comparison {{data[0].eloque_id}}</h1>
-    <h1>Bridge</h1>
+    <h1>DIS Comparison {{data[0].index_id}}</h1>
+    <h1>Asset</h1>
     <table>
-        <tr><td>Eloque ID</td><td>{{data[0].eloque_id}}</td></tr>
+        <tr><td>Index ID</td><td>{{data[0].index_id}}</td></tr>
         <tr><td>Classification</td><td>{% for c in data[0].classification %}{{c}} {% endfor %}</td></tr>
-        <tr><td>Feature Crossed</td><td>{{data[0].bridge_name}}</td></tr>
+        <tr><td>Feature Crossed</td><td>{{data[0].asset_name}}</td></tr>
     </table>
 
     <h1>Component Types</h1>
