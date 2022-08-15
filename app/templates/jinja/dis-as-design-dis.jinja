@@ -1,0 +1,93 @@
+Deployment
+Eloque ID,{{data.eloque_id}},
+Asset ID,{{data.asset_id}},
+Sharepoint Name,{{data.sharepoint_name}},
+Excel Version,1.1.0,
+Bridge,{{data.bridge_name}},
+RSA structure number,{{data.structure_id}},
+Type,Type,
+FiBridge Type,{% for c in data.classification %}{{c}} {% endfor %},
+Number of Spans,{{data.totalSpans}},
+Deck Width (m),{{data.deckWidth}},
+FiBridge Status,Status,
+FiBridge Built,Build Date,
+Coordinates,{{data.coordinates_latitude}},{{data.coordinates_longitude}}
+Feature crossed,{{data.feature_crossed}},
+Road name,{{data.road_name}},
+Skew angle,{{data.skew_angle}}
+Directions mapping,,
+Internal,External,
+up,{{data.up.label}},
+left,{{data.left.label}},
+right,{{data.right.label}},
+down,{{data.down.label}},
+LEFT2RIGHT,{{data.left2right}},
+RIGHT2LEFT,{{data.right2left}},
+.
+
+{% set ns = namespace(items=0) %}
+{% set ns.component_type = {} %}
+
+Lanes
+Transverse ID,Direction,Type,Lane ID,Width (m),Transverse Coordinates(m)
+    {% for l in data.lanes %}
+{{l.transverse_id}},{{l.lane_direction}},{{l.laneType}},{{l.lane_id.label}},{{l.lane_width}},{{l.transverse_coordinates}}
+    {% endfor %} 
+.
+
+Structure
+Component,Type,Length,Height,Width,Lane
+    {% for c in data.structure %}
+        {% for x in data.componentTypes if x.componentType == c.componentType['value'] %}{% set ns.component_type = x %}{% endfor %}
+{{c.componentId}},{{c.componentType}},{{ns.component_type.length}},{{ns.component_type.height}},{{ns.component_type.width}},{{c.superstructureLane.value}}
+    {% endfor %} 
+.
+
+Component Types
+Component Type,Type,SubType,Youngs,Shear,Density,Moment,Area,Flange Width 1,Flange Width 2,Length,Height,Width
+    {% for c in data.componentTypes %}
+{{c.componentType}},{{c.structureType['value']}},{{c.structureSubType}},{{c.effective_youngs_modulus}},{{c.effective_shear_modulus}},{{c.weight}},{{c.effective_area_moment_of_inertia}},{{c.effective_area}},{{c.flangeWidth1}},{{c.flangeWidth2}},{{c.length}},{{c.height}},{{c.width}}
+    {% endfor %} 
+.
+
+
+{% for f in ['F01','F02','F03','F04','F05','F06','F07','F08','F09','F10','F11','F12','F13','F14','F15'] %}
+  {% if data[f] and data[f][0].sensor %}
+    {% set fiber = data[f] %}
+    {% for s in fiber %}
+      {% if loop.first %}
+{{s.fiber}}
+Sensor,Component,x,y,Sensor Type,Angle,Side,Top,Left,Spacing,Right,Note
+      {% endif%}
+      {% if s.sensor_type %}
+{{s.sensor}},{{s.component_id}},{{s.x}},{{s.y}},{% if s.sensor_type == 'temperature'%}{{s.sensor_type}}{% else %}strain{% endif %},{{s.angle}},{{s.side}},{{f.fromTop}},{{f.fromLeft}},{{f.sensorSpacing}},{{f.fromRight}},{{f.note}}
+      {% endif %}
+      {% if loop.last %}
+.
+
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+
+
+Deflection
+ID,Type,Fiber,Component,Sensor Type,Sensors Top,Sensors Bottom
+    {% for d in data.deflection %}
+{{d.id}},{{d.algorithm_type}},{{d.fiber_id}},{{d.component_id}},sensor_pair_array,{{d.sensors_top}},{{d.sensors_bottom}}
+    {% endfor %}
+.
+
+Shear
+ID,Type,Fiber,Component,Sensor Type,0 deg,45 deg,90 deg
+    {% for s in data.shear %}
+{{s.id}},{{s.algorithm_type}},{{s.fiber_id}},{{s.component_id}},3d_rosette,{{s.rosette_0}},{{s.rosette_45}},{{s.rosette_90}}
+    {% endfor %}
+.
+
+Bending Moment
+ID,Type,Fiber,Component,Sensor Type,Sensor Top,Sensor Bottom
+    {% for b in data.bending_moment %}
+{{b.id}},{{b.algorithm_type}},{{b.fiber_id}},{{b.component_id}},sensor_pair,{{b.sensor_top}},{{b.sensor_bottom}}
+    {% endfor %}
+.

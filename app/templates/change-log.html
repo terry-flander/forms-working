@@ -1,0 +1,142 @@
+<html>
+  <head>
+     <link rel="stylesheet" href="/app/static/menu.css">
+     <script type="text/javascript" charset="utf8" src="/app/static/jquery-3.6.0.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
+     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.js"></script>
+     <title>Change Log {{bridge}}</title>
+     <style>
+        body{
+            background:#ddd;
+          }
+          .open_popup{
+            background:tomato;
+            border:none;
+            padding:5px 15px;
+            color:#fff;
+          }
+          .popup_body{
+            display:none;
+            position:fixed;
+            top:0;left:0;right:0;bottom:0;
+            -webkit-transition: 300ms;
+              -moz-transition: 300ms;
+              -o-transition: 300ms;
+              -ms-transition: 300ms;
+              transition: 300ms;
+          }
+          .popup_body_show{
+            display:block;
+            -webkit-transition: 300ms;
+              -moz-transition: 300ms;
+              -o-transition: 300ms;
+              -ms-transition: 300ms;
+              transition: 300ms;
+          }
+          .popup_back{
+            background: rgba(0,0,0,0.4);
+            position: fixed;
+            left:0;right:0;top:0;bottom:0;
+          }
+          .popup_contain{
+            position:relative;
+            background:#fff;
+            min-width:300px;
+            max-width:80%;
+            margin:100px auto 50px;
+            min-height:150px;
+            padding: 10px 20px;
+          }
+          .popup_close{
+            background:red;
+            padding:3px 10px 5px;
+            position: absolute;
+            right:-1px;
+            top:-1px;
+            color: #fff;
+            border-radius: 50%;
+          }
+          div.editable {
+            width: 300px;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+        </style>
+  </head>
+  <body>
+    <div class="home" id="output" style="visibility:hidden"></div>
+    <b class="pageName">Change Log for {{bridge}}</b>
+
+    <table id="submissions" class="display">
+    <thead>
+        <tr>
+            <th>Date/Time</th><th>Form</th><th>User</th><th>First Change</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+{% for s in data %}
+    <tr>
+        <td>{{s.logDateTime}}</td>
+        <td>{{s.form_name}}</td>
+        <td>{{s.logUser}}</td>
+        <td>{{s.logFirstChange}}</td>
+        <td>
+            <div class="popup_main">
+                <button class="open_popup">Details</button>
+                <div class="popup_body">
+                    <div class="popup_back"></div>
+                    <div class="popup_contain">
+                    <div class="popup_close">x</div>
+                    <div style="overflow-y: scroll; height:400px;">
+                        <table>
+                          <tr><th>Old Value</th><th>New Value</th></tr>
+                      {{s.logComment|safe}}
+                      </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+  
+  <script>
+    $(document).ready( function () {
+        $('#submissions').DataTable({
+            "order": []
+        });
+    } );
+    
+    $(".open_popup").click(function () {
+        $(this).parent(".popup_main").children(".popup_body").addClass("popup_body_show");
+        });
+      $(".popup_close").click(function () {
+        $(".popup_body").removeClass("popup_body_show");
+        });
+      $(".popup_back").click(function () {
+        $(".popup_body").removeClass("popup_body_show");
+        });
+     
+
+    function sendData(action, path, id, new_id) {
+
+        var http = new XMLHttpRequest();
+        http.onreadystatechange = async function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("output").innerHTML = this.responseText;
+                document.getElementById("output").style.visibility = "visible";
+                await new Promise(r => setTimeout(r, 2000));
+                location.reload();
+            }
+        };
+        let data = '{"action": "' + action + '", "path": "' + path + '", "keyfield": "eloque_id", "id": "' + id + '", "new_id": "' + new_id + '"}';
+
+        http.open('POST', 'action/submission', true);
+        http.setRequestHeader('content-type', 'application/json;charset=UTF-8');
+        http.send(JSON.stringify(data));
+    }
+</script>
+</body>
+</html>

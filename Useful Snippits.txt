@@ -1,0 +1,14 @@
+Select Data Source: URL
+
+
+Data Source Url: 
+../../../../form/country/submission
+
+Value Property: 
+data.id
+
+Search Query Name: 
+data.id__regex
+
+Item Template:
+<span>{{ item.data.id }} - {{ item.data.description }}</span>

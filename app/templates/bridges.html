@@ -1,0 +1,93 @@
+{% extends "app_header.html" %}
+{% block content %}
+<table width="100%"><tr>
+    <td width="20%">&nbsp;</td>
+    <td width="20%" style="text-align:center"><button class="button gray" onclick="reloadPage()">Reload</button></td>
+    <td width="20%"><button class="button wide green" onclick="NewTab('/app/edit/bridge-overview/** New **', '_form_new')"><span style="font-size:x-large; font-weight:bolder;">+ Add New Asset</span></button></td>
+    <td width="20%" style="text-align:center"><button class="button gray" onclick="reloadPage()">Reload</button></td>
+    <td width="20%">&nbsp;</td>
+</tr></table>
+
+<table id="submissions" class="display">
+    <thead>
+        <tr><th>Eloque ID</th><th>Structure ID</th><th>Description</th><th>Alerts</th><th>Map</th><th>SharePoint</th><th>OPS</th><th>SI</th></tr>
+    </thead>
+    <tbody>
+{% for s in data %}
+    <tr>
+        <td><button class="button wide blue" onclick="NewTab('/app/edit/{{s.path}}/{{s.eloque_id}}', '_form_{{s.path}}_{{s.eloque_id}}')">{{s.eloque_id}}</button></td>
+        <td>{{s.structure_id}}</td>
+        <td>{{s.bridge_name}}</td>
+        <td style="text-align:center">
+            {% if 'allowOpsConfig' in session['access'] %}
+            <button class="button black" onclick="NewTab('/app/edit/ops-limits/{{s.eloque_id}}', '_form_ops_{{s.eloque_id}}}')">OPS</button>
+            {% else %}
+            &nbsp;
+            {% endif %}
+        </td>
+        <td style="text-align:center">
+            <a href="javascript:NewTab('https://www.google.com/maps/search/?api=1&query=' + '{{s.coordinates_latitude}}' + ',' + '{{s.coordinates_longitude}}')">
+                <img src="/app/static/google_map.png" height="25px" title="Google Maps Location"></a>
+        </td>
+        <td style="text-align:center">
+            {%if s.sharepoint_name %}
+            <a href="javascript:NewTab('https://fihub.sharepoint.com/sites/' + '{{s.sharepoint_name}}' + '/Shared%20Documents/Forms/AllItems.aspx')">
+                <img src="/app/static/sharepoint.png" height="30px" title="Open Sharepoint Folders for Asset"></a>
+            {% else %}
+            &nbsp;
+            {% endif %}
+        </td>
+        <td style="text-align:center">
+            {%if s.ops_dashboard_link %}
+            <a href="javascript:NewTab('{{s.ops_dashboard_link}}')">
+                <img src="/app/static/transpara_img.png" height="30px" title="Open VisualKPI Dashboard for OPS"></a>
+            {% else %}
+            &nbsp;
+            {% endif %}
+        </td>
+        <td style="text-align:center">
+            {%if s.app_dashboard_link %}
+            <a href="javascript:NewTab('{{s.app_dashboard_link}}')">
+                <img src="/app/static/transpara_img.png" height="30px" title="Open VisualKPI Dashboard for SI"></a>
+            {% else %}
+            &nbsp;
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+<a href="javascript:toggleWorkflow()" id="showMe">Show Workflow</a>
+<img src="/app/static/bdt_map_v2.jpg" id="workflow" style="visibility: hidden" width="100%">
+
+<script>
+    $('#submissions').DataTable( {
+        "lengthChange": true,
+        "pageLength": 20,
+        "aaSorting": []
+    } );
+
+    let workflowShow = false;
+
+    function NewTab(href, target) {
+        window.open(href, target);
+    }
+
+    function reloadPage() {
+        location.reload();
+    }
+
+    function toggleWorkflow(self) {
+        let wf = document.getElementById("workflow");
+        let toggle = document.getElementById("showMe");
+        if (!workflowShow) {
+            wf.style.visibility = "visible";
+            toggle.innerHTML = "Hide Workflow";
+        } else {
+            wf.style.visibility = "hidden";
+            toggle.innerHTML = "Show Workflow";
+        }
+        workflowShow = !workflowShow;
+    }
+</script>
+{% endblock %}

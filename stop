@@ -1,0 +1,16 @@
+# Stop whole environment based on location -- will also stop server
+docker=${1:-"local"}
+
+echo $env $docker
+
+DOCKERCOMPOSE="docker-compose-$docker.yml"
+
+echo "Stopping webserver..."
+./server stop
+
+echo "Stopping Docker containers..."
+cd ../formio-master
+docker-compose -f $DOCKERCOMPOSE down
+
+cd ../ops-portal
+

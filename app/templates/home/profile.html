@@ -1,0 +1,36 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Profile {% endblock title %}
+
+{% block stylesheets %}
+<link rel='stylesheet' href='https://cdn.form.io/formiojs/formio.full.min.css'>
+<link rel="stylesheet" href="/app/static/menu.css">
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col-8">
+        <h3 class="mb-0">Edit profile </h3>
+      </div>
+      <div class="col-4 text-right">
+        <a href="#!" class="btn btn-sm btn-primary">Settings</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body"id='formio'></div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+<script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+<script type='text/javascript'>
+ window.onload = function() {
+    Formio.createForm(document.getElementById('formio'), '{{ops_portal_url}}/app/formio/{{path}}/submission/{{keyvalue}}');
+  };
+</script>
+{% endblock javascripts %}

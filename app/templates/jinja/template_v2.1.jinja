@@ -1,0 +1,263 @@
+{
+    {% set ns = namespace(items=0) %}
+    {% set ns.component_type = {} %}
+    "excel-version": "0.2.0",
+    "bridge": {
+        "type": "{{data.eloque_id}}",
+        "classification": "{% for c in data.classification %}{{c}} {% endfor %}",
+        "name": "{{data.bridge_name}}",
+        "RSA structure number": "{{data.structure_id}}",
+        "fibridge-status": "TBD",
+        "fibridge-built": "TBD",
+        "coordinates": [
+            {{data.coordinates_latitude}},
+            {{data.coordinates_longitude}}
+        ],
+        "feature_crossed": "{{data.feature_crossed}}",
+        "road_name": "{{data.road_name}}",
+        "skew_angle": {{data.skew_angle}},
+        "directions_mapping": {
+            "down": "{{data.down}}",
+            "left": "{{data.left}}",
+            "right": "{{data.right}}",
+            "up": "{{data.up}}",
+            "left2right": "{{data.left2right}}",
+            "right2left": "{{data.right2left}}"
+        },
+        "lanes": [
+        {% set ns.gotone = False %}
+        {% for l in data.lanes %}
+        {% if l.lane_id %}
+        {% if ns.gotone == True %}
+            ,
+        {% else %}
+        {% set ns.gotone = True %}
+        {% endif %}
+            {
+                "id": "{{l.lane_id.label}}",
+                "type": "{{l.lane_direction}}"
+            }
+        {% endif %}
+        {% endfor %}
+        ],
+
+        "superstructure": {
+        {% set ns.last_span = '' %}
+            "spans": {
+        {% for s in data.structure %}
+            {% set span = s.componentId[:3] %}
+            {% set girder = s.componentId[3:] %}
+            {% if span[0:1] == 'S' %}
+                    {% if ns.last_span == span %}
+                    ,
+                    {% endif %}
+                {% if ns.last_span != span %}
+                {% if ns.last_span != '' %}
+                },
+                {% endif %}
+                "{{span}}": {
+                {% endif %}
+                    "{{girder}}": {
+                        "type": "girder",
+                        "id": "{{girder}}",
+                        "span_id": "{{span}}"
+                    }
+            {% endif %}
+            {% set ns.last_span = span %}
+        {% endfor%}
+                }
+            }
+        },
+        {% set ns.types = False %}
+        {% set ns.components = False %}
+        "substructure": {
+        {% for t in data.componentTypes %}
+            {% if t.structureType != 'girder' %}
+            {% if ns.types == True %}
+            ,
+            {% else %}
+                {% set ns.types = True %}
+            {% endif %}
+            "{{t.structureType}}": {
+            {% for s in data.structure %}
+                {% if s.componentType.value == t.componentType %}
+                {% if ns.components == True %}
+                ,
+                {% else %}
+                    {% set ns.components = True %}
+                {% endif %}
+                "{{s.componentId}}": {
+                    "type": "{{t.structureType}}",
+                    "id": "{{s.componentId}}"
+                }
+                {% endif %}
+            {% endfor %}
+            {% set ns.components = False%}
+            }
+            {% endif %}
+        {% endfor %}
+        }
+    },
+
+    "components": {
+        {% for c in data.structure %}
+        {% for x in data.componentTypes if x.componentType == c.componentType['value'] %}{% set ns.component_type = x %}{% endfor %}
+        {% if loop.first != True %}
+        ,"{{c.componentId}}": {
+        {% else %}
+        "{{c.componentId}}": {
+        {% endif %}
+            "component_id": "{{c.componentId}}",
+            "span_id": "{{c.componentId[0:3]}}",
+            "girder_id": "{{c.componentId[3:-1]}}",
+            "length": {{ns.component_type.length}},
+            "width": {{ns.component_type.width}},
+            "height": {{ns.component_type.height}},
+            "traffic": "",
+            "material": [
+                {
+                    "effective_youngs_modulus": "{{ns.component_type.effective_youngs_modulus}}",
+                    "units": "MPa"
+                },
+                {
+                    "effective_shear_modulus": "{{ns.component_type.effective_shear_modulus}}",
+                    "units": "MPa"
+                },
+                {
+                    "weight": "{{ns.component_type.weight}}",
+                    "units": "Kg"
+                }
+            ],
+            "geometry": [
+                {
+                    "effective_area_moment_of_inertia": "{{ns.component_type.effective_area_moment_of_inertia}}",
+                    "units": "mm^4"
+                },
+                {
+                    "effective_area": "{{ns.component_type.effective_area}}",
+                    "units": "m^2"
+                }
+            ]
+        }
+        {% endfor %}
+    },
+    {% set ns.fiber_type = '' %}
+    "fibers": {
+        {% for f in ['F01','F02','F03','F04','F05','F06','F07','F08','F09','F10','F11','F12','F13','F14','F15'] %}
+        {% if data[f] and data[f][0].fiber %}
+            {% set fiber = data[f] %}
+            {% if loop.first != True %}
+        },
+        "{{fiber[0].fiber}}": {
+            {% else %}
+        "{{fiber[0].fiber}}": {
+            {% endif %}
+            {% for t in data.fiber_mapping if t.fiber_id == fiber[0].fiber %}{% set ns.fiber_type = t.fiber_type %}{% endfor %}
+            "type": {{ns.fiber_type}},
+            "id": "{{fiber[0].fiber}}",
+            "number_sensors": 0{{data.number_of_sensors}},
+            {% set specificationFile = "./resources/fiber/" + ns.fiber_type|string + ".json" %}
+            "specification": {% include specificationFile %},
+            "sensors": [
+            {% for s in fiber %}
+                {% if loop.first != True %}
+                ,{
+                {% else %}
+                {
+                {% endif %}
+                    "type": "{{s.type}}",
+                    "fiber": "{{fiber[0].fiber}}",
+                    "sensor": {{s.sensor}},
+                    "span": {% if s.component_id %}"{{s.component_id[0:3]}}"{% else %}""{% endif %},
+                    "component": {% if s.component_id %}"{{s.component_id.value}}"{% else %}""{% endif %},
+                    "x": {{s.x}},
+                    "y": {{s.y}},
+                    "sensor_type": "{{ s.sensor_type[0 : s.sensor_type.find('-')] }}",
+                    {% if s.sensor_type.startswith('3d_rosette') %}
+                    "angle": {{s.sensor_type.split("-")[1]}},
+                    {% endif %}
+                    "side": "{{s.side}}"
+                }
+                {% if loop.last == True %}
+            ]
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endfor %}
+        }
+    },
+    "algorithms": {
+        "deflection": {
+        {% for d in data.deflection %}
+        {% if loop.first != True %}
+            ,"{{d.id}}": {
+        {% else %}
+            "{{d.id}}": {
+        {% endif %}
+                "type": "algorithm",
+                "id": "{{d.id}}",
+                "algorithm_type": "deflection",
+                "fiber": "{{d.fiber_id}}",
+                "component": "{{d.component_id}}",
+                "span": "{{d.component_id[:3]}}",
+                "sensor_type": "sensor_pair_array",
+                "sensors": {
+                    "top": [
+                        {{d.sensors_top}}
+                    ],
+                    "bottom": [
+                        {{d.sensors_bottom}}
+                    ]
+                }
+            }
+        {% endfor %}
+        },
+        "girder_shear": {
+        {% for d in data.shear %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "girder_shear",
+                    "fiber": "{{d.fiber_id}}",
+                    "component": "{{d.component_id}}",
+                    "span": "{{d.component_id[:3]}}",
+                    "sensor_type": "3d_rosette",
+                    "sensors": [
+                        {{d.rosette_0}},
+                        {{d.rosette_45}},
+                        {{d.rosette_90}}
+                    ]
+                }
+            {% endif %}
+        {% endfor %}
+        },
+        "girder_bending_moment": {
+        {% for d in data.bending_moment %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "girder_bending_moment",
+                    "fiber": "{{d.fiber_id}}",
+                    "component": "{{d.component_id}}",
+                    "span": "{{d.component_id[:3]}}",
+                    "sensor_type": "sensor_pair",
+                    "sensors": [
+                        {{d.sensor_top}},
+                        {{d.sensor_bottom}}
+                    ]
+                }
+            {% endif %}
+        {% endfor %}
+        }
+    }
+}

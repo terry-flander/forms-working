@@ -1,0 +1,42 @@
+{% set ns = namespace(items=0) %}
+[
+  {% set ns.count = 0 %}
+  {% for c in data.classification %}
+  {
+  	"op": "add",
+  	"path": "/data/classification/{{ns.count}}",
+  	"value": "{{c}}"
+  },
+  {% set ns.count = ns.count + 1 %}
+  {% endfor %}  
+  {
+  	"op": "replace",
+  	"path": "/data/bridge_name",
+  	"value": "{{data.bridge_name}}"
+  },   
+  {
+  	"op": "replace",
+  	"path": "/data/structure_id",
+  	"value": "{{data.structure_id}}"
+  },   
+  {
+  	"op": "replace",
+  	"path": "/data/asset_id",
+  	"value": "{{data.asset_id}}"
+  },   
+  {
+  	"op": "replace",
+  	"path": "/data/sharepoint_name",
+  	"value": "{{data.sharepoint_name}}"
+  },   
+  {
+  	"op": "replace",
+  	"path": "/data/coordinates_latitude",
+  	"value": "{{data.coordinates_latitude}}"
+  },   
+  {
+  	"op": "replace",
+  	"path": "/data/coordinates_longitude",
+  	"value": "{{data.coordinates_longitude}}"
+  }
+  ]

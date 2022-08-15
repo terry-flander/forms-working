@@ -1,0 +1,21 @@
+{% extends "app_header.html" %}
+{% block content %}
+
+<a href="javascript:toggleWorkflow()" id="showMe">Show Workflow</a>
+<img src="/app/static/bdt_map_v2.jpg" id="workflow" style="visibility: hidden" width="100%">
+
+<script>
+    function toggleWorkflow(self) {
+        let wf = document.getElementById("workflow");
+        let toggle = document.getElementById("showMe");
+        if (!workflowShow) {
+            wf.style.visibility = "visible";
+            toggle.innerHTML = "Hide Workflow";
+        } else {
+            wf.style.visibility = "hidden";
+            toggle.innerHTML = "Show Workflow";
+        }
+        workflowShow = !workflowShow;
+    }
+</script>
+{% endblock %}

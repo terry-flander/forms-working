@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FormsFBA</title>
+    <link rel="stylesheet" href="/app/static/dis_menu.css">
+    <link rel="stylesheet" href="/app/static/popup.css">
+    <script type="text/javascript" charset="utf8" src="/app/static/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
+     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.js"></script>
+    <script src="/app/static/std_lib.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="http://www.eloque.com" target="_blank">
+                <img src="/app/static/logo-fba.png" style="height: 60px; padding-top: 11px; padding-left: 24px;" />
+            </a>
+            <h1 class="logo">Forms FBA - {{session['environment_title']}}</h1>
+            <strong><nav>
+            <ul class="menu">
+                {% for v in view_access %}
+                <li><a href="/app/view/{{v}}">{{v}}</a></li>
+                {% endfor %}
+                {% if 'admin' in session['access'] %}
+                <li><a href="/app/admin" target="_new">Admin</a></li>
+                {% endif %}
+                <li><a href="/app/edit/change-password/xxx" target="_new">Change Password</a></li>
+                <li><a href="/app/logout">Logout</a></li>
+            </ul>
+            </nav></strong>
+        </div>
+    </header>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    </body>
+</html>

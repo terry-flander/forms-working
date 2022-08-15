@@ -1,0 +1,12 @@
+# Run the test scripts
+
+. config/env/test.env
+
+echo "Testing promote_api.py"
+python3 app/tests/test_promote_api.py
+echo "Testing formio_api.py"
+python3 app/tests/test_formio_api.py
+echo "Testing jinja_api.py"
+python3 app/tests/test_jinja_api.py
+echo "Testing webhook.py"
+python3 app/tests/test_webhook.py

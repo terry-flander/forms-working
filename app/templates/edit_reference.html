@@ -1,0 +1,28 @@
+<!-- http://54.252.242.116:8000/static/example.html -->
+<html>
+  <head>
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='https://cdn.form.io/formiojs/formio.full.min.css'>
+    <link rel="stylesheet" href="/app/static/menu.css">
+    <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+    <script type='text/javascript'>
+     window.onload = function() {
+        Formio.createForm(document.getElementById('formio'), '{{ops_portal_url}}/app/formio/reference/{{path}}/submission/{{keyvalue}}');
+      };
+    </script>
+      <title>Tools - Update Reference</title>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <img src="/app/static/logo-fba.png" style="height: 60px; padding-top: 11px; padding-left: 24px;" />
+        <h1 class="logo">{{keyvalue}} - {{desc}}</h1>
+      </div>
+    </header>
+    <div class="container" style="margin: 10px;">
+      <div class="edit" style='padding: 20px'>
+        <div id='formio'></div>
+      </div>
+    </div>
+  </body>
+</html>

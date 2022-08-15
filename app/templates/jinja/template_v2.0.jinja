@@ -1,0 +1,229 @@
+{
+    "excel-version": "{{data.json_template}}",
+    "bridge": {
+        "type": "{{data.eloque_id}}",
+        "classification": "{% for c in data.classification %}{{c}} {% endfor %}",
+        "fibridge-status": "{{data.fibridge_status}}",
+        "fibridge-built": "{{data.fibridge_built[0:10]}}",
+        "coordinates": [
+            {{data.coordinates_latitude}},
+            {{data.coordinates_longitude}}
+        ],
+        "feature_crossed": "{{data.feature_crossed}}",
+        "road_name": "{{data.road_name}}",
+        "skew_angle": {{data.skew_angle}},
+        "directions_mapping": {
+            "up": "{{data.up}}",
+            "down": "{{data.down}}",
+            "left": "{{data.left}}",
+            "right": "{{data.right}}",
+            "left2right": "{{data.left2right}}",
+            "right2left": "{{data.right2left}}"
+        },
+        "lanes": {
+            {% for group in data.lanes|groupby('lane_direction') %}
+                {% if loop.first %}
+            "{{group.grouper}}" : {
+                {% else %}
+            },
+            "{{group.grouper}}" : {
+                {% endif %}
+                {% for l in group.list %}
+                "{{l.lane_id}}": {
+                    "type": "{{l.lane_direction}}",
+                    "id": "{{l.lane_id}}"
+               
+                {% if loop.last %}
+                }
+                {% else %}
+                },
+                {% endif %}
+                {% endfor %}
+            }
+            {% endfor %}
+        },
+        "superstructure": {
+            "spans": {
+            {% for group in data.superstructure|groupby('span_id') %}
+                {% if loop.first %}
+            "{{group.grouper}}" : {
+                {% else %}
+            },
+            "{{group.grouper}}" : {
+                {% endif %}
+                {% for s in group.list %}
+                "{{s.girder_id}}": {
+                    "type": "{{s.type}}",
+                    "id": "{{s.girder_id}}",
+                    "span_id": "{{s.span_id}}"
+                {% if loop.last %}
+                }
+                {% else %}
+                },
+                {% endif %}
+                {% endfor %}
+            }
+            {% endfor %}
+        },
+        "substructure": {
+            {% for group in data.substructure|groupby('type') %}
+                {% if loop.first %}
+            "{{group.grouper}}" : {
+                {% else %}
+            },
+            "{{group.grouper}}" : {
+                {% endif %}
+                {% for s in group.list %}
+                "{{s.substructure_id}}": {
+                    "type": "{{s.type}}",
+                    "id": "{{s.substructure_id}}"
+                {% if loop.last %}
+                }
+                {% else %}
+                },
+                {% endif %}
+                {% endfor %}
+            }
+            {% endfor %}
+        }
+    },
+    "components": {
+        {% for c in data.components %}
+        {% if loop.first != True %}
+        ,"{{c.component_id}}": {
+        {% else %}
+        "{{c.component_id}}": {
+        {% endif %}
+            "component_id": "{{c.component_id}}",
+            "span_id": "{{c.component_id[0:3]}}",
+            "girder_id": "{{c.component_id[3:-1]}}",
+            "length": {{c.length}},
+            "width": {{c.width}},
+            "height": {{c.height}},
+            "traffic": "{{c.traffic}}",
+            {% set materialFile = "resources/material/" + c.material + ".json" %}
+            "material": {% include materialFile %},
+            {% set geometryFile = "resources/geometry/" + c.geometry + ".json" %}
+            "geometry": {% include geometryFile %}
+        }
+        {% endfor %}
+    },
+    "fibers": {
+        {% for f in data.allFibersList %}
+        {% set fiber_id = f.value %}
+        {% if data[fiber_id] %}
+            {% set fiber = data[fiber_id] %}
+            {% if loop.first != True %}
+        },
+        "{{fiber[0].fiber}}": {
+            {% else %}
+        "{{fiber[0].fiber}}": {
+            {% endif %}
+            "type": {{data.fiber_type}},
+            "id": "{{fiber[0].fiber}}",
+            "number_sensors": {{data.number_of_sensors}},
+            {% set specificationFile = "resources/fiber/" + data.fiber_type|string + ".json" %}
+            "specification": {% include specificationFile %},
+            "sensors": [
+            {% for s in fiber %}
+                {% if loop.first != True %}
+                ,{
+                {% else %}
+                {
+                {% endif %}
+                    "type": "{{s.type}}",
+                    "fiber": "{{fiber[0].fiber}}",
+                    "sensor": {{s.sensor}},
+                    "span": {% if s.component_id %}"{{s.component_id[0:3]}}"{% else %}""{% endif %},
+                    "component": {% if s.component_id %}"{{s.component_id.value}}"{% else %}""{% endif %},
+                    "x": {{s.x}},
+                    "y": {{s.y}},
+                    "sensor_type": "{{ s.sensor_type[0 : s.sensor_type.find('-')] }}",
+                    {% if s.sensor_type.startswith('3d_rosette') %}
+                    "angle": {{s.sensor_type.split("-")[1]}},
+                    {% endif %}
+                    "side": "{{s.side}}"
+                }
+                {% if loop.last == True %}
+            ]
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endfor %}
+        }
+    },
+    "algorithms": {
+        "deflection": {
+        {% for d in data.deflection %}
+        {% if loop.first != True %}
+            ,"{{d.id}}": {
+        {% else %}
+            "{{d.id}}": {
+        {% endif %}
+                "type": "algorithm",
+                "id": "{{d.id}}",
+                "algorithm_type": "deflection",
+                "fiber": "{{d.fiber_id}}",
+                "component": {% if d.component_id %}"{{d.component_id}}"{% else %}""{% endif %},
+                "span": "{{d.span}}",
+                "sensor_type": "sensor_pair_array",
+                "sensors": {
+                    "top": [
+                        {{d.sensors_top}}
+                    ],
+                    "bottom": [
+                        {{d.sensors_bottom}}
+                    ]
+                }
+            }
+        {% endfor %}
+        },
+        "girder_shear": {
+        {% for d in data.shear %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "girder_shear",
+                    "fiber": "{{d.fiber_id.value}}",
+                    "component": {% if d.component_id %}"{{d.component_id.value}}"{% else %}""{% endif %},
+                    "span": "{{d.span}}",
+                    "sensor_type": "3d_rosette",
+                    "sensors": [
+                        {{d.rosette_0}},
+                        {{d.rosette_45}},
+                        {{d.rosette_90}}
+                    ]
+                }
+            {% endif %}
+        {% endfor %}
+        },
+        "girder_bending_moment": {
+        {% for d in data.bending_moment %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "girder_bending_moment",
+                    "fiber": "{{d.fiber_id.value}}",
+                    "component": {% if d.component_id %}"{{d.component_id.value}}"{% else %}""{% endif %},
+                    "span": "{{d.span}}",
+                    "sensor_type": "sensor_pair",
+                    "sensors": [
+                        {{d.sensor_top}},
+                        {{d.sensor_bottom}}
+                    ]
+                }
+            {% endif %}
+        {% endfor %}
+        }
+    }
+}

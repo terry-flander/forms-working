@@ -1,0 +1,451 @@
+<html>
+<head>
+    <title>DIS Comparison {{data[0].eloque_id}}</title>
+    <link rel="stylesheet" href="/designer/static/menu.css">
+    <script type="text/javascript" charset="utf8" src="/designer/static/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.tables.net/v/dt/dt-1.11.3/tables.min.css"/>
+    <script type="text/javascript" src="https://cdn.tables.net/v/dt/dt-1.11.3/tables.min.js"></script>
+    <script>
+            function sensorLocationTest(orig_pos, new_pos, show_this) {
+            let diff = Math.abs(orig_pos - new_pos);
+            let response = ''
+            if (diff > 0) {
+                if (diff < 0.05) {
+                    response = "#FFC000";
+                } else if (diff < 0.1) {
+                    response = "#FF9933";
+                } else if (diff < 0.15) {
+                    response = "#C00000";
+                } else {
+                    response = "#960000";
+                }
+                response = 'style="color: white; font-weight: bold; background: ' + response + '"';
+            } 
+            document.write("<td " + response + ">"+show_this+"</td>");
+        }
+    </script>
+
+
+<style>
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+</style>
+</head>
+<body>
+    {% set ns = namespace(x=0, y=0) %}
+
+    <div style="background-color:#1A2B45; height: 75px; ">
+        <a href="http://www.eloque.com" target="_blank">
+            <img src="/designer/static/logo.png" style="height: 53px; padding-top: 11px; padding-left: 24px;" />
+        </a>
+    </div>
+    <div style="margin: 10px;">
+    <h1>DIS Comparison {{data[0].eloque_id}}</h1>
+    <h1>Bridge</h1>
+    <table>
+        <tr><td>Eloque ID</td><td>{{data[0].eloque_id}}</td></tr>
+        <tr><td>Classification</td><td>{% for c in data[0].classification %}{{c}} {% endfor %}</td></tr>
+        <tr><td>Feature Crossed</td><td>{{data[0].bridge_name}}</td></tr>
+    </table>
+
+    <h1>Component Types</h1>
+    <table id="customers">
+        <thead>
+            <tr><th>Component Type</th><th>Type</th><th>SubType</th><th>Youngs</th><th>Shear</th><th>Density</th><th>Moment</th><th>Area</th><th>Flange Width 1</th><th>Flange Width 2</th><th>Length</th><th>Height</th><th>Width</th></tr>
+        </thead>
+        <tbody>
+    {% for c in data[0].componentTypes %}
+        <tr>
+            <td>{{c.componentType}}</td>
+            <td>{{c.structureType}}</td>
+            <td>{{c.structureSubType}}</td>
+            <td>{{c.effective_youngs_modulus}}</td>
+            <td>{{c.effective_shear_modulus}}</td>
+            <td>{{c.weight}}</td>
+            <td>{{c.effective_area_moment_of_inertia}}</td>
+            <td>{{c.effective_area}}</td>
+            <td>{{c.flangeWidth1}}</td>
+            <td>{{c.flangeWidth2}}</td>
+            <td>{{c.length}}</td>
+            <td>{{c.height}}</td>
+            <td>{{c.width}}</td>
+        </tr>
+    {% endfor %} 
+        </tbody>
+    </table>
+
+    <h1>Components</h1>
+    <table id="customers">
+        <thead>
+            <tr><th>Component</th><th>Component Type</th><th>Length</th><th>Height</th><th>Width</th><th>Structure Lane</th></tr>
+        </thead>
+        <tbody>
+    {% set ns.component_type = {} %}
+    {% for c in data[0].structure %}
+        {% for x in data[0].componentTypes if x.componentType == c.componentType['value'] %}{% set ns.component_type = x %}{% endfor %}
+            <tr>
+                <td>{{c.componentId}}</td>
+                <td>{{c.componentType['value']}}</td>
+                <td>{{ns.component_type.length}}</td>
+                <td>{{ns.component_type.height}}</td>
+                <td>{{ns.component_type.width}}</td>
+                <td>{{c.superstructureLane.label}}</td>
+            </tr>
+        </tbody>
+    {% endfor %} 
+    </table>
+
+    <h1>Fibers/Sensors</h1>
+    <table><tr><td>Sensor Position Varience Severity Coding</td>
+        <script>sensorLocationTest(0,0.04,'&nbsp;0.05m or less&nbsp;')</script>
+        <script>sensorLocationTest(0,0.05,'&nbsp;more than 0.05m but less than 0.1m&nbsp;')</script>
+        <script>sensorLocationTest(0,0.1,'&nbsp;more than 0.1m but less than 0.15m&nbsp;')</script>
+        <script>sensorLocationTest(0,0.15,'&nbsp;more than 0.15m&nbsp;')</script>
+    </tr>
+    </table>
+    <table id="customers">
+        <tr>
+            <th>Fiber</th><th>Sensor</th><th>Span</th><th>Component</th>
+            <th>Sensor Type</th><th>Angle</th><th>Side</th>
+            <th>Design x</th><th>Design y</th><th>Built x</th><th>Built y</th>
+        </tr>
+    {% for f in ['F01','F02','F03','F04','F05','F06','F07','F08','F09','F10','F11','F12','F13','F14','F15'] %}
+        {% if data[0][f] %}
+        {% set fiber = data[0][f] %}
+        {% set fiber_built = data[1][f] %}
+        {% for s in fiber %}
+            {% if s.sensor_type %}
+            {% for x in fiber_built %}
+            {% if x.sensor == s.sensor %}
+            {% set ns.x = x.x %}
+            {% set ns.y = x.y %}
+            {% endif %}
+            {% endfor %}
+        <tr>
+            <td>{{fiber[0].fiber}}</td>
+            <td>{{s.sensor}}</td>
+            <td>{% if s.component_id %}{{s.component_id[0:3]}}{% else %}{% endif %}</td>
+            <td>{% if s.component_id %}{{s.component_id}}{% else %}{% endif %}</td>                    
+            <td>{{s.sensor_type}}</td>
+            <td>{{s.angle}}</td>
+            <td>{{s.side}}</td>
+            <script>sensorLocationTest({{s.x}},{{ns.x}},{{ns.x}})</script>
+            <script>sensorLocationTest({{s.y}},{{ns.y}},{{ns.y}})</script>
+            <script>sensorLocationTest({{ns.x}},{{s.x}},{{s.x}})</script>
+            <script>sensorLocationTest({{ns.y}},{{s.y}},{{s.y}})</script>
+        </tr>
+            {% endif %}
+        {% endfor %}
+        {% endif %}
+    {% endfor %}
+    </table>
+
+    <h1>Algorithms</h1>
+    <h3>Deflection</h3>
+    <table id="customers">
+        <thead>
+            <tr>
+                <th>ID</th><th>Type</th><th>Fiber</th><th>Span</th><th>Component</th>
+                <th>Sensor Type</th><th>Sensors Top</th><th>Sensors Bottom</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for d in data[0].deflection %}
+        <tr>
+            <td>{{d.id}}</td>
+            <td>{{d.algorithm_type}}</td>
+            <td>{{d.fiber_id}}</td>
+            <td>{{d.span}}</td>
+            <td>{{d.component_id}}</td>
+            <td>sensor_pair_array</td>
+            <td>{{d.sensors_top}}</td>
+            <td>{{d.sensors_bottom}}</td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Girder Shear</h3>
+    <table id="customers">
+        <thead>
+            <tr>
+                <th>ID</th><th>Type</th><th>Fiber</th><th>Span</th><th>Component</th>
+                <th>Sensor Type</th><th>0 deg</th><th>45 deg</th><th>90 deg</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for s in data[0].shear %}
+        <tr>
+            <td>{{s.id}}</td>
+            <td>{{s.algorithm_type}}</td>
+            <td>{{s.fiber_id}}</td>
+            <td>{{s.span}}</td>
+            <td>{{s.component_id}}</td>
+            <td>3d_rosette</td>
+            <td>{{s.rosette_0}}</td>
+            <td>{{s.rosette_45}}</td>
+            <td>{{s.rosette_90}}</td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Girder Bending Moment</h3>
+    <table id="customers">
+        <thead>
+            <tr>
+                <th>ID</th><th>Type</th><th>Fiber</th><th>Span</th><th>Component</th>
+                <th>Sensor Type</th><th>Sensor Top</th><th>Sensor Bottom</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for b in data[0].bending_moment %}
+        <tr>
+            <td>{{b.id}}</td>
+            <td>{{b.algorithm_type}}</td>
+            <td>{{b.fiber_id}}</td>
+            <td>{{b.span}}</td>
+            <td>{{b.component_id}}</td>
+            <td>sensor_pair</td>
+            <td>{{b.sensor_top}}</td>
+            <td>{{b.sensor_bottom}}</td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+
+    <svg id="cont" height="1000" width="2000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    </svg>
+    <script>
+
+        function add_component(component_id, type, count, length, height) {
+            let rectx = 50 + (count * 100);
+            let recty = 100 + (count * 210);
+            let textx = 100 + (count * 100);
+            let texty = 60 + (count * 210);
+            addRectangle(rectx - 25, recty - 10, 950, 115, '#b0b0b0', '');
+            addRectangle(rectx, recty, 900, 100, '#a0a0a0', '');
+            addDimension(rectx, recty, 900, 100, true, length, '');
+            addDimension(rectx, recty, 900, 100, false, height, '');
+            addText(textx, texty, component_id, 'font-size: 24; font-family: sans-serif; fill: black; stroke: none; text-anchor: left', '');
+        }
+
+        function add_sensor(fiber_id, x, y, number, type, angle, count, scalex, scaley, origin) {
+            let sensorx = ((x * 100) + 50 + (count * 140)) * scalex;
+            let sensory = ((190 - (origin * 100) * scaley) + (count * 210));
+            let textx = ((x * 100) + 50 + (count * 140)) * scalex;
+            let texty = ((190 - (origin * 100) * scaley) + 30 + (count * 210));
+            let textxyoffset = texty + 20;
+            let anglex = 0;
+            let angley = 0;
+            let posx = textx + 10;
+            let posy = texty + 20;
+            if (origin > 0.1 && type == 'strain') {
+                texty = sensory - 20;
+                posy = texty - 20;
+                textxyoffset = texty - 20;
+            }
+            let font = 18;
+            if (type == "temperature") {
+                anglex = 10;
+            } else if (type == "strain") {
+                anglex = 20;
+            } else {
+                font = 12;
+                if (angle == 0) {
+                    anglex = 10;
+                    texty -= 5;
+                } else if (angle == 90) {
+                    angley = -10;
+                    texty -= 50;
+                } else {
+                    anglex = 12;
+                    angley = -12;
+                    textx += 20;
+                    texty -= 40;
+                }
+            }
+            let sensor_id = fiber_id + number;
+            if (type == 'rosette' && angle != 0) {
+                sensor_id += '-skip';
+            }
+
+            sensor = addLine(sensor_id, sensorx, sensory, sensorx + anglex, sensory + angley, 'stroke: black; stroke-width: 2; fill: none');
+            addText(textx, texty, number, 'font-size: ' + font + '; font-family: sans-serif; fill: black; stroke: none; text-anchor: middle', '');
+            if (type == 'rosette' && angle == 0) {
+                addText(sensorx + 50, sensory, '(' + x + 'm, ' + y + 'm)', 'font-size: 10; font-family: sans-serif; fill: black; stroke: none; text-anchor: middle', '');
+            } else if (type != 'rosette') {
+                addText(textx, textxyoffset, '(' + x + 'm, ' + y + 'm)', 'font-size: 10; font-family: sans-serif; fill: black; stroke: none; text-anchor: middle', '');
+            }
+        }
+
+        function draw_fiber(fiber_id) {
+            let container = document.getElementById( 'cont' );
+            let last_sensor = null;
+            for (let i = 1; i <= 25; i++) {
+                let this_id = fiber_id + i;
+                let this_sensor = document.getElementById(this_id);
+                if (this_sensor != null) {
+                    if (last_sensor != null) {
+                        let x1 = last_sensor.getAttribute('x2');
+                        let y1 = last_sensor.getAttribute('y2');
+                        let x2 = this_sensor.getAttribute('x1');
+                        let y2 = this_sensor.getAttribute('y1');
+                        if (y1 == y2) {
+                            addLine(last_sensor.id, x1, y1, x2, y2, 'stroke: green; stroke-width: 3; fill: none');
+                        } else {
+                            addLine(last_sensor.id, x1, y1, x1, y2, 'stroke: green; stroke-width: 3; fill: none');
+                            addLine(last_sensor.id, x1, y2, x2, y2, 'stroke: green; stroke-width: 3; fill: none');
+                        }
+                        container.appendChild(last_sensor);
+                        container.appendChild(this_sensor);
+                    }
+                    last_sensor = this_sensor;
+                }
+            }
+        }
+
+        function addRectangle(x, y, width, height, fill, style) {
+            let svgns = "http://www.w3.org/2000/svg";
+            let container = document.getElementById( 'cont' );
+            let r = document.createElementNS(svgns, 'rect');
+            r.setAttributeNS(null, 'x',x);
+            r.setAttributeNS(null, 'y',y);
+            if (style == '') {
+                style = 'width: ' + width + '; height: ' + height + '; fill: ' + fill + '; stroke-width: 0; stroke: none';
+            }
+            r.setAttributeNS(null, 'style', style);
+            container.appendChild(r);
+        }
+
+        function addLine(id, x1, y1, x2, y2, style) {
+            let svgns = "http://www.w3.org/2000/svg";
+            let container = document.getElementById( 'cont' );
+            let l = document.createElementNS(svgns, 'line');
+            l.setAttributeNS( null, 'id', id);
+            l.setAttributeNS(null, 'x1', x1);
+            l.setAttributeNS(null, 'y1', y1);
+            l.setAttributeNS(null, 'x2', x2);
+            l.setAttributeNS(null, 'y2', y2);
+            l.setAttributeNS(null, 'style', style);
+            container.appendChild(l);
+            return l;
+        }
+
+        function addText(x, y, text, style, rotate) {
+            let svgns = "http://www.w3.org/2000/svg";
+            let container = document.getElementById( 'cont' );
+            let t = document.createElementNS(svgns, 'text');
+            t.setAttributeNS(null, 'x', x);
+            t.setAttributeNS(null, 'y', y);
+            t.textContent=text
+            t.setAttributeNS(null, 'style', style);
+            if (rotate != '') {
+                t.setAttributeNS(null, 'transform', rotate);
+            }
+            container.appendChild(t);
+        }
+
+        function addDimension(x, y, length, width, horizontal, text, style) {
+            if (horizontal) {
+                x2 = x + length;
+                y = y - 20;
+                y2 = y;
+                xt = x + (length / 2);
+                yt = y - 10;
+            } else {
+                x = x - 20;
+                x2 = x;
+                y2 = y + width;
+                xt = y + (width / 2);
+                yt = (x - 30) * -1;
+            }
+            if (style == '') {
+                style = 'stroke: grey; stroke-width: 1; fill: none';
+            }
+            addLine('dim' + x + y, x, y, x2, y2, style);
+            addArrowHeads(x, y, length, width, horizontal);
+            let rotate = '';
+            if (!horizontal) {
+                rotate = 'rotate(90)';
+            }
+            addText(xt, yt, text + ' m', 'font-size: 24; font-family: sans-serif; fill: orange; stroke: none; text-anchor: middle', rotate);
+            if (horizontal) {
+                addLine('mid' + xt, xt, yt - 10, xt, yt + width + 30, 'stroke: grey; stroke-width: 1; stroke-dasharray: "50", fill: none');
+                addText(xt, yt + 35, 'midspan', 'font-size: 14; font-family: sans-serif; fill: grey; stroke: none; text-anchor: middle', '');
+            }
+        }
+
+        function addArrowHeads(x, y, length, width, horizontal) {
+            if (horizontal) {
+                addLine('arrowl' + x, x, y, x + 10, y - 10, 'stroke: grey; stroke-width: 1; fill: none');
+                addLine('arrowr' + x, x, y, x + 10, y + 10, 'stroke: grey; stroke-width: 1; fill: none');
+                x = x + length;
+                addLine('arrowl' + x, x, y, x - 10, y - 10, 'stroke: grey; stroke-width: 1; fill: none');
+                addLine('arrowr' + x, x, y, x - 10, y + 10, 'stroke: grey; stroke-width: 1; fill: none');
+            } else {
+                addLine('arrowl' + x, x, y, x - 10, y + 10, 'stroke: grey; stroke-width: 1; fill: none');
+                addLine('arrowr' + x, x, y, x + 10, y + 10, 'stroke: grey; stroke-width: 1; fill: none');
+                y = y + width;
+                addLine('arrowl' + y, x, y, x + 10, y - 10, 'stroke: grey; stroke-width: 1; fill: none');
+                addLine('arrowr' + y, x, y, x - 10, y - 10, 'stroke: grey; stroke-width: 1; fill: none');
+            }
+        }
+
+        function drawStuff() {
+            let count = 0;
+            let scalex = 1;
+            let scaley = 1;
+            let origin = 0;
+    {% for c in data[0].components %}
+            {% set jinja_template = data[0].jinja_template %}
+            {% set height = c.height %}
+            add_component('{{c.component_id}}', 'type', count, '{{c.length}}', '{{c.height}}');
+            scalex = (9.0 / {{c.length}});
+            scaley = (0.81 / {{c.height}});
+        {% for l in data[0].allFibersList %}
+            {% set f = l["label"] %}
+            {% if data[0][f] %}
+                {% set fiber = data[0][f] %}
+                {% for s in fiber %}
+                {% if s.sensor_type and s.component_id ==  c.component_id %}
+            origin = {{s.y}};
+            if ('{{jinja_template}}' != 'v1.1') {
+                origin = {{height}} - {{s.y}};
+            }
+            add_sensor('{{fiber[0].fiber}}', {{s.x}}, {{s.y}}, '{{s.sensor}}', '{{s.sensor_type}}', {{s.angle}}, count, scalex, scaley, origin);
+                {% endif %}
+            {% endfor %}
+            {% endif %}
+        {% endfor %}
+            count += 1;
+    {% endfor %}
+        {% for l in data[0].allFibersList %}
+        {% set f = l["value"] %}
+            draw_fiber("{{f}}");
+        {% endfor %}
+        }
+        drawStuff();
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Start whole environment based on location -- will also run server
+env=${1:-"development"}
+docker=${2:-"local"}
+
+echo $env $docker
+
+if [ "$env" == "development" ]
+then
+    DOCKERCOMPOSE="docker-compose-$docker.yml"
+else
+    DOCKERCOMPOSE="docker-compose-production.yml"
+fi
+
+echo "Update scripts in formio-master..."
+cp config/docker-compose-*.yml ../formio-master
+cp config/nginx-*.conf ../formio-master
+
+echo "Starting Docker containers..."
+cd ../formio-master
+docker-compose -f $DOCKERCOMPOSE up -d
+
+cd ../ops-portal
+rm -f tmp/session/admin/token.txt
+
+echo "Starting webserver..."
+./server start $env

@@ -1,0 +1,55 @@
+<div class="flex-shrink-0 p-3 bg-white" style="width: 280px;">
+  <a href="/app" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+    <img src="/app/static/logo-new.png" style="width:200px;" alt="Flander, Beyer and Associates P/L">
+  </a>
+  <hr>
+  <ul class="list-unstyled ps-0">
+
+    {% for menu in sidenav.data.menuSection %}
+    <li class="mb-1">
+      <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#{{menu.sectionName | replace(' ','_')}}-collapse" aria-expanded="true">
+        {{menu.sectionName}}
+      </button>
+    
+      <div class="collapse" id="{{menu.sectionName | replace(' ','_')}}-collapse">
+      <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+  {% for item in menu.menuSectionItems %}
+      <li>
+          {% if item.menuItemType == 'resource' %}
+          <a class="link-dark rounded" href="javascript:NewTab('/app/tool/reference/{{item.menuItemForm}}','_admin')">
+          {% endif %}
+          {% if item.menuItemType == 'view' %}
+          <a class="link-dark rounded" href="javascript:NewTab('/app/view/{{item.menuItemView}}','_admin')">
+          {% endif %}
+          {% if item.menuItemType == 'url' %}
+          <a class="link-dark rounded" href="javascript:NewWindow('{{item.menuItemUrl}}','_admin')">
+          {% endif %}
+          {% if item.menuItemType == 'tool' %}
+          <a class="link-dark rounded" href="javascript:NewTab('/app/tool/{{item.menuItemTool}}','_admin')">
+          {% endif %}
+          {% if item.menuItemType == 'edit' %}
+          <a class="link-dark rounded" href="javascript:NewWindow('../edit/reference/{{item.menuItemForm}}/{{item.menuItemTool}}','_admin')">
+          {% endif %}
+          <span>{{item.menuItemLabel}}</span>
+          </a>
+      </li>
+    {% endfor %}
+      </ul>
+      </div>
+    </li>
+  {% endfor %}
+    <li class="border-top my-3"></li>
+    <li class="mb-1">
+      <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">
+        Account
+      </button>
+      <div class="collapse" id="account-collapse">
+        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li><a class="link-dark rounded" href="/app/profile.html">Profile</a></li>
+          <li><a class="link-dark rounded" href="/app/edit/change-password/xxx" target="_blank">Change Password</a></li>
+          <li><a class="link-dark rounded" href="/app/logout">Sign out</a></li>
+            </ul>
+      </div>
+    </li>
+  </ul>
+</div>

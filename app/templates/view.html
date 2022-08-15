@@ -1,0 +1,60 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<table width="100%">
+  <td width="50%" style="font-weight: bold; padding: 15px;">{{data.title}}</td>
+  <td width="50%" style="text-align:right;font-weight: bold; padding: 15px;">
+  {% if data.add_new %}
+      <a href="javascript:NewEditTab('/app/edit/{{data.primaryForm}}/** New **', '_form_new')">+ Add New {{data.title}}</a>
+      <img style='height:20px;' src='/app/static/reload.png' onclick="reloadPage()">
+      {% endif %}
+    </td>
+</tr></table>
+
+    <table id="server" class="display">
+      <thead>
+        <tr>{{data.browseLabels | safe}}</tr>
+      </thead>
+      <tfoot>
+        <tr>{{data.browseLabels | safe}}</tr>
+      </tfoot>
+    </table>
+  {% endblock content %}
+
+    <!-- Specific JS goes HERE --> 
+  {% block javascripts %}
+        
+    <script>
+      {{data.dataTableScript | safe}}
+
+    function appLink(id) {
+      window.open('/app/edit/{{data.primaryForm}}/' + id, 'app_edit');
+    }
+
+    function refLink(id) {
+      window.open('/app/edit/reference/{{data.primaryForm}}/' + id, 'ref_edit');
+    }
+
+    function NewBrowse(id) {
+      window.open('/app/view/' + id, '_self');
+    }
+
+    function reloadPage() {
+        location.reload();
+    }
+
+    function NewEditTab(href, target) {
+      window.open(href,"edit_view");
+    }    
+
+    $(document).on('click', ".open_popup", function () {
+          $(this).parent(".popup_main").children(".popup_body").addClass("popup_body_show");
+          });
+        $(document).on('click', ".popup_close", function () {
+          $(".popup_body").removeClass("popup_body_show");
+          });
+        $(document).on('click', ".popup_back", function () {
+          $(".popup_body").removeClass("popup_body_show");
+          });
+      
+    </script>
+  {% endblock javascripts %}

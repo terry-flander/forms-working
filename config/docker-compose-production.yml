@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+
+  nginx:
+      image: nginx
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - /home/ec2-user/formio-master/certs:/etc/nginx/certs
+        - /home/ec2-user/formio-master/nginx-production.conf:/etc/nginx/nginx.conf
+
+  formio:
+    build: ./
+    # The app will restart until Mongo is listening
+    restart: always
+    ports:
+      - "3001:3001"
+    # The application wants to download things to the local directory
+    # TODO: really wish I could mount this as read-only
+    volumes:
+      - ./:/app:rw
+    links:
+      - nginx
+    environment:
+      DEBUG: formio:*
+      NODE_CONFIG: '{"mongo": "mongodb+srv://ops-portal:eloque@roebling-portal-ap-sout.bmack.mongodb.net/formioapp-prod2?retryWrites=true&w=majority", "host": "54.79.191.17:3001", "domain": "http://54.79.191.17:3001"}'
+    stdin_open: true  # -i

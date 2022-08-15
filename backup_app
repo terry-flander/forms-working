@@ -1,0 +1,16 @@
+# clone the app forms and submissiong
+. config/env/development.env
+#!/bin/bash
+echo "\nPull all Forms and Submissions from Source system"
+echo "** will save all into tmp/* **"
+echo "** will zip all into named  backup file **\n"
+read -p "Do you want to proceed? (yes/no) " yn
+
+case $yn in 
+	yes ) echo ok, we will proceed;;
+	no ) echo exiting...;
+		exit;;
+	* ) echo invalid response;
+		exit 1;;
+esac
+python3 ./app/lib/backup_data.py

@@ -1,0 +1,14 @@
+{
+    "data": {
+        "structure_id": "{{data.structure_id}}",
+        "bridge_name": "{{data.bridge_name}}",
+        "eloque_id": "{{data.eloque_id}}",
+        "eloque_id2": "{{data.eloque_id}}",
+        "asset_id": "{{data.asset_id}}",
+        "sharepoint_name": "{{data.sharepoint_name}}",
+        "classification": [{% for c in data.classification %}"{{c}}"{%if not loop.last %},{% endif %}{% endfor %}],
+        "jinja_template": "{{data.jinja_template}}",
+        "coordinates_latitude":  {{data.coordinates_latitude}},
+        "coordinates_longitude": {{data.coordinates_longitude}}
+    }
+}

@@ -1,0 +1,93 @@
+{
+    "data": {
+        "structure_id": "{{data.structure_id}}",
+        "bridge_name": "{{data.bridge_name}}",
+        "fibridge-status": "{{data.fibridge_status}}",
+        "fibridge-built": "{% if data.fibridge_built %}data.fibridge_built[0:10]}}{% endif %}",
+        "eloque_id": "{{data.eloque_id}}",
+        "asset_id": "{{data.asset_id}}",
+        "sharepoint_name": "{{data.sharepoint_name}}",
+        "classification": [{% for c in data.classification %}"{{c}}"{%if not loop.last %},{% endif %}{% endfor %}],
+        "jinja_template": "{{data.jinja_template}}",
+        "feature_crossed": "{{data.feature_crossed}}",
+        "road_name": "{{data.road_name}}",
+        "deckWidth": "{{data.deckWidth}}",
+        "skew_angle": "{{data.skew_angle}}",
+        "coordinates_latitude":  "{{data.coordinates_latitude}}",
+        "coordinates_longitude": "{{data.coordinates_longitude}}",
+        "up": "{{data.up.value}}",
+        "down": "{{data.down.value}}",
+        "left": "{{data.left.value}}",
+        "right": "{{data.right.value}}",
+        "left2right": "{{data.left2right}}",
+        "right2left": "{{data.right2left}}",
+
+        "generate_json": "no",
+        "totalSpans": "{{data.totalSpans}}",
+        "totalGirders": "{{data.totalGirders}}",
+        "totalPiers": "{{data.totalPiers}}",
+        "totalPierColumns": "{{data.totalPierColumns}}",
+        "totalLanes": "{{data.totalPierCrossheads}}",
+        "abutments": "{{data.totalAbutments}}",
+        "totalFibers":"{{data.totalFibers}}",
+        "fiber_type":"{{data.fiberType}}",
+        "all_components": {{data.all_components}},
+        "all_fibers": {{data.all_fibers}},
+        "lockBuild": "true",
+
+        "allComponentsList": {{data.allComponentsList | tojson }},
+        "allFibersList": {{data.allFibersList | tojson }},
+        
+        "lanes": {{data.lanes | tojson }},
+        "componentTypes": {{data.componentTypes | tojson }},
+        "structure": {{data.structure | tojson }},
+        "fibers": {{data.fibers | tojson }},
+        "fiber_layout": {{data.fiber_layout | tojson }},
+        "deflection": {{data.deflection | tojson }},
+        "shear": {{data.shear | tojson }},
+        "bending_moment": {{data.bending_moment | tojson }},
+
+        "fiber_mapping": [
+            {% for s in range(1,data.totalFibers + 1) %}
+                {% if loop.first != True %}
+            , {
+                {% else %}
+            {
+                {% endif %}
+                "fiber_id": "F0{{s}}",
+                "asset_id": "{{data.asset_id}}",
+                "physical_fiber": "{{s}}",
+                "fiber_type": "{{data.fiberType}}"
+            }
+            {% endfor %}
+        ]
+
+        {% for group in data.fiber_layout|groupby('fiber') %}
+        ,
+        "{{group.grouper}}" : [
+            {% for f in group.list %}
+            {% if loop.first %}
+            {
+            {% else %}
+            ,{
+            {% endif %}
+                "type": "{{f.type}}",
+                "fiber": "{{f.fiber}}",
+                "sensor": "{{f.sensor}}",
+                "component_id": "{{f.component_id}}",
+                "sensor_type": "{% if f.sensor_type == 'temperature'%}{{f.sensor_type}}{% else %}strain{% endif %}",
+                "x": "{{f.x}}",
+                "y": "{{f.y}}",
+                "side": "{{f.side}}",
+                "angle": "{{f.angle}}",
+                "fromTop": "{{f.fromTop}}",
+                "fromLeft": "{{f.fromLeft}}",
+                "sensorSpacing": "{{f.sensorSpacing}}",
+                "fromRight": "{{f.fromRight}}",
+                "note": "{{f.note}}"
+            }
+            {% endfor %}
+        ]
+        {% endfor %}
+    }
+}

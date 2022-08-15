@@ -1,0 +1,56 @@
+body{
+    background:#ddd;
+  }
+  .open_popup{
+    background:tomato;
+    border:none;
+    padding:5px 15px;
+    color:#fff;
+  }
+  .popup_body{
+    display:none;
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    -webkit-transition: 300ms;
+      -moz-transition: 300ms;
+      -o-transition: 300ms;
+      -ms-transition: 300ms;
+      transition: 300ms;
+  }
+  .popup_body_show{
+    display:block;
+    -webkit-transition: 300ms;
+      -moz-transition: 300ms;
+      -o-transition: 300ms;
+      -ms-transition: 300ms;
+      transition: 300ms;
+  }
+  .popup_back{
+    background: rgba(0,0,0,0.4);
+    position: fixed;
+    left:0;right:0;top:0;bottom:0;
+  }
+  .popup_contain{
+    position:relative;
+    background:#fff;
+    min-width:300px;
+    max-width:80%;
+    margin:100px auto 50px;
+    min-height:150px;
+    padding: 10px 20px;
+  }
+  .popup_close{
+    background:red;
+    padding:3px 10px 5px;
+    position: absolute;
+    right:-1px;
+    top:-1px;
+    color: #fff;
+    border-radius: 50%;
+  }
+  div.editable {
+    width: 300px;
+    height: 200px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}

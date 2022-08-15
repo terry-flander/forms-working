@@ -1,0 +1,34 @@
+# Start maintenance webservice
+action=${1:-"start"}
+env=${2:-"development"}
+
+if [ "$action" == "stop" ] || [ "$action" == "restart" ]
+then
+    echo "Stoping webserver..."
+    P=`ps -ax | grep [Pp]ython | sed -e "s/^ *//g" | fgrep wsgi | cut -d " " -f 1` 
+    if [ -z "$P" ]
+    then
+        echo "Webserver not running"
+    else
+        echo $P
+        kill -9 $P
+    fi
+fi
+
+if [ "$action" == "start" ] || [ "$action" == "restart" ]
+then
+    rm -f tmp/session/admin/token.txt
+    rm -f tmp/*.log
+    echo "Starting webserver..."
+    export FLASK_ENV=$env
+    . config/env/$env.env
+    echo "Localhost $LOCALHOST"
+    nohup python3 -m wsgi &> tmp/webserver.log & echo $! > tmp/http.server.pid &
+fi
+
+if [ "$action" != "start" ] && [ "$action" != "stop" ] && [ "$action" != "restart" ]
+then
+    echo "usage: server [ <action> [ <env> ] ]
+       <action> -- start, stop or restart DEFAULT start
+       <env>    -- development, staging or production DEFAULT development"
+fi

@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/app/static/menu.css">
+    <link rel="stylesheet" href="/app/static/popup.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.js"></script>
+    <title>Promote Log</title>
+  </head>
+  <body>
+    <div class="home" id="output" style="visibility:hidden"></div>
+    <b class="pageName">Form Promote Log</b>
+    <a href="edit/reference/form-promote-entry/entry-form" target="_blank">New Promote</a>
+
+    <table id="submissions" class="display">
+    <thead>
+        <tr>
+            <th>Date/Time</th><th>Form</th><th>User</th><th>From Host</th><th>To Host</th><th>Version</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+{% for s in data %}
+    <tr>
+        <td>{{s.promoteDateTime}}</td>
+        <td>{{s.path}}{% if s.key_value %} - {{s.key_value}}{% endif %}</td>
+        <td>{{s.promoteUser}}</td>
+        <td>{{s.promote_from_host}}</td>
+        <td>{{s.promote_to_host}}</td>
+        <td>{{s.version}}</td>
+        <td>
+            <div class="popup_main">
+                <button class="open_popup">Details</button>
+                <div class="popup_body">
+                    <div class="popup_back"></div>
+                    <div class="popup_contain">
+                    <div class="popup_close">x</div>
+                    <div style="overflow-y: scroll; height:400px;">
+                      {{s.description | safe}}
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+{% endfor %}
+    </tbody>
+    </table>
+  
+    
+    <script>
+      $(document).ready( function () {
+        $('#submissions').DataTable({
+          "order": []
+        });
+    });
+    
+    $(".open_popup").click(function () {
+          $(this).parent(".popup_main").children(".popup_body").addClass("popup_body_show");
+          });
+        $(".popup_close").click(function () {
+          $(".popup_body").removeClass("popup_body_show");
+          });
+        $(".popup_back").click(function () {
+          $(".popup_body").removeClass("popup_body_show");
+          });
+      
+    </script>
+  </body>
+</html>

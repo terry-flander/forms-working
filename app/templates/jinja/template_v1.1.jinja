@@ -1,0 +1,164 @@
+{
+    "excel-version": "{{data.json_template}}",
+    "bridge": {
+        "type": "{{data.eloque_id}}",
+        "classification": "{% for c in data.classification %}{{c}} {% endfor %}",
+        "fibridge-status": "{{data.fibridge_status}}",
+        "fibridge-built": "{{data.fibridge_built}}",
+        "coordinates": [
+            -37.95233,
+            143.34807
+        ],
+        "feature_crossed": "{{data.bridge_name}}",
+        "road_name": "",
+        "skew_angle": 0,
+        "directions_mapping": {
+        },
+        "lanes": {
+        },
+        "superstructure": {
+        },
+        "substructure": {
+        }
+    },
+    "components": {
+        {% for c in data.components %}
+        {% if loop.first != True %}
+        ,"{{c.component_id}}": {
+        {% else %}
+        "{{c.component_id}}": {
+        {% endif %}
+            "component_id": "{{c.component_id}}",
+            "span_id": "{{c.component_id[0:3]}}",
+            "girder_id": "{{c.component_id[3:-1]}}",
+            "length": {{c.length}},
+            "width": {{c.width}},
+            "height": {{c.height}},
+            "traffic": "{{c.traffic}}",
+            {% set materialFile = "resources/material/" + c.material + ".json" %}
+            "material": {% include materialFile %},
+            {% set geometryFile = "resources/geometry/" + c.geometry + ".json" %}
+            "geometry": {% include geometryFile %}
+        }
+        {% endfor %}
+    },
+    "fibers": {
+        {% for f in data.all_fibers %}
+        {% if data[f] %}
+            {% set fiber = data[f] %}
+            {% if loop.first != True %}
+        },
+        "{{fiber[0].fiber}}": {
+            {% else %}
+        "{{fiber[0].fiber}}": {
+            {% endif %}
+            "type": {{data.fiber_type}},
+            "id": "{{fiber[0].fiber}}",
+            "number_sensors": {{data.number_of_sensors}},
+            {% set specificationFile = "resources/fiber/" + data.fiber_type|string + ".json" %}
+            "specification": {% include specificationFile %},
+            "sensors": [
+            {% for s in fiber %}
+                {% if loop.first != True %}
+                ,{
+                {% else %}
+                {
+                {% endif %}
+                    "type": "{{s.type}}",
+                    "fiber": "{{fiber[0].fiber}}",
+                    "sensor": {{s.sensor}},
+                    "span": {% if s.component_id %}"{{s.component_id[0:3]}}"{% else %}""{% endif %},
+                    "component": {% if s.component_id %}"{{s.component_id.value}}"{% else %}""{% endif %},
+                    "x": {{s.x}},
+                    "y": {{s.y}},
+                    "sensor_type": "{{ s.sensor_type[0 : s.sensor_type.find('-')] }}",
+                    {% if s.sensor_type.startswith('3d_rosette') %}
+                    "angle": {{s.sensor_type.split("-")[1]}},
+                    {% endif %}
+                    "side": "{{s.side}}"
+                }
+                {% if loop.last == True %}
+            ]
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endfor %}
+        }
+    },
+    "algorithms": {
+        "deflection": {
+        {% for d in data.deflection %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "deflection",
+                    "fiber": "{{d.fiber_id.value}}",
+                    "component": {% if d.component_id %}"{{d.component_id.value}}"{% else %}""{% endif %},
+                    "span": "{{d.span }}",
+                    "sensor_type": "sensor_pair_array",
+                    "sensors": {
+                        "top": [
+                            {{d.sensors_top}}
+                        ],
+                        "bottom": [
+                            {{d.sensors_bottom}}
+                        ]
+                    }
+                }
+            {% endif %}
+        {% endfor %}
+        },
+        "girder_shear": {
+        {% for d in data.shear %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "girder_shear",
+                    "fiber": "{{d.fiber_id.value}}",
+                    "component": {% if d.component_id %}"{{d.component_id.value}}"{% else %}""{% endif %},
+                    "span": "{{d.span}}",
+                    "sensor_type": "3d_rosette",
+                    "sensors": [
+                        {{d.rosette_0}},
+                        {{d.rosette_45}},
+                        {{d.rosette_90}}
+                    ]
+                }
+            {% endif %}
+        {% endfor %}
+        },
+        "girder_bending_moment": {
+        {% for d in data.bending_moment %}
+            {% if d.id %}
+            {% if loop.first != True %}
+                ,"{{d.id}}": {
+            {% else %}
+                "{{d.id}}": {
+            {% endif %}
+                    "type": "algorithm",
+                    "id": "{{d.id}}",
+                    "algorithm_type": "girder_bending_moment",
+                    "fiber": "{{d.fiber_id.value}}",
+                    "component": {% if d.component_id %}"{{d.component_id.value}}"{% else %}""{% endif %},
+                    "span": "{{d.span}}",
+                    "sensor_type": "sensor_pair",
+                    "sensors": [
+                        {{d.sensor_top}},
+                        {{d.sensor_bottom}}
+                    ]
+                }
+            {% endif %}
+        {% endfor %}
+        }
+    }
+}

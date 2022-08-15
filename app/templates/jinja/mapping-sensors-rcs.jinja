@@ -1,0 +1,75 @@
+DELETE FROM transpara.transpara_groups WHERE site_id = 'ops' AND eloque_id = '{{data.structure_id}}';
+INSERT INTO transpara.transpara_groups (metaid, parent_metaid, name, description, display_order, asset_type, latitude, longitude, site_id, eloque_id)
+VALUES
+{% set ns = namespace(items=0) %}
+{% set ns.order = 1 %}
+('{{data.structure_id}}', null, '{{data.structure_id[0:2]}} {{data.structure_id[2:]}}', 'Bridge {{data.eloque_id}} - {{data.bridge_name}}', {{data.structure_id[2:]}}, '{% for c in data.classification %}{{c}} {% endfor %}', '{{data.coordinates_latitude}}', '{{data.coordinates_longitude}}', 'ops', '{{data.structure_id}}'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:System Health', '{{data.structure_id}}', '{{data.structure_id}}: System Health', '{{data.eloque_id}} System Health', {{ns.order}}, '', 0, 0, 'ops', '{{data.structure_id}}'),
+{% set ns.order = ns.order + 1 %}
+{% for f in range(data.totalFibers) %}
+('{{data.structure_id}}:Fibre {{f + 1}}', '{{data.structure_id}}', '{{data.structure_id}}:Fibre {{f + 1}}', '{{data.structure_id}} - {{data.bridge_name}} - Fibre {{f + 1}}', {{ns.order}}, '', 0, 0, 'ops', '{{data.structure_id}}'){% if not loop.last %},
+    {% endif %}
+    {% set ns.order = ns.order + 1 %}
+{% endfor %};
+
+DELETE FROM transpara.transpara_kpis WHERE site_id = 'ops' AND eloque_id = '{{data.structure_id}}';
+INSERT INTO transpara.transpara_kpis
+  (metaid, parent_metaid, name, description, display_order, min, lll, ll, l, actual, actual_interface, target, h, hh, hhh, max, groupmap_position, bridge, abutment, span, girder, fibre, sensor, latitude, longitude, site_id, eloque_id, status)
+VALUES
+{% set ns.order = 1 %}
+('{{data.structure_id}}:Missing Readings', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Missing Readings', '{{data.structure_id}} Missing Readings in Previous Minute', {{ns.order}}, 0, 0, 0, 0, 'missing_readings|asset={{data.asset_id}}', 'tStore', 0, 1, 0, 0, 5, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Voltage', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Battery Voltage', '{{data.structure_id}} Battery Voltage', {{ns.order}}, 50, 0, 0, 50, 'voltage_supply|asset={{data.asset_id}}', 'tStore', 0, 60, 0, 0, 60, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Current', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Battery Current', '{{data.structure_id}} Battery Current', {{ns.order}}, -1.1, 0, 0, -1.1, 'battery_current|asset={{data.asset_id}}', 'tStore', 0, 30, 0, 0, 30, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Power', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Power 24V', '{{data.structure_id}} Power 24V', {{ns.order}}, 0, 0, 0, 0, 'power_24v|asset={{data.asset_id}}', 'tStore', 0, 0, 0, 0, 24, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Door Back', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Door', '{{data.structure_id}} Door Alarm Back', {{ns.order}}, 0, 0, 0, 0, 'door_back|asset={{data.asset_id}}', 'tStore', 0, 1, 0, 0, 2, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Door Front', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Door', '{{data.structure_id}} Door Alarm Front', {{ns.order}}, 0, 0, 0, 0, 'door_front|asset={{data.asset_id}}', 'tStore', 0, 1, 0, 0, 2, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Latency', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Latency', '{{data.structure_id}} Data Upload Latency', {{ns.order}}, 0, 0, 0, 0, 'max_readings_delay|asset={{data.asset_id}}', 'tStore', 0, 5, 0, 0, 10, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:RH Bottom', '{{data.structure_id}}:System Health', '{{data.structure_id}}: RH Bottom', '{{data.structure_id}} Relative Humidity Cabinet Bottom', {{ns.order}}, -10, 0, 0, -10, 'humidity_top|asset={{data.asset_id}}', 'tStore', 0, 80, 0, 0, 80, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:RH Top', '{{data.structure_id}}:System Health', '{{data.structure_id}}: RH Top', '{{data.structure_id}} Relative Humidity Cabinet Top', {{ns.order}}, -10, 0, 0, -10, 'humidity_top|asset={{data.asset_id}}', 'tStore', 0, 80, 0, 0, 80, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Temp Bottom', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Temp Bottom', '{{data.structure_id}} Temp Cabinet Bottom', {{ns.order}}, 0, 0, 0, 1, 'temperature_bottom|asset={{data.asset_id}}', 'tStore', 0, 40, 0, 0, 40, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Temp Top', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Temp Top', '{{data.structure_id}} Temp Cabinet Top', {{ns.order}}, 0, 0, 0, 1, 'temperature_top|asset={{data.asset_id}}', 'tStore', 0, 40, 0, 0, 40, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:CPU Temp', '{{data.structure_id}}:System Health', '{{data.structure_id}}: CPU Temp', '{{data.structure_id}} CPU Temperature', {{ns.order}}, 0, 0, 0, 1, 'cpu_temperature|asset={{data.asset_id}}', 'tStore', 0, 60, 0, 0, 60, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:Sampling Rate', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Sampling Rate', '{{data.structure_id}} Sampling Rate', {{ns.order}}, 0, 5, 0, 0, 'sampling_rate|asset={{data.asset_id}}', 'tStore', 50, 0, 0, 0, 50, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+('{{data.structure_id}}:# Fibres', '{{data.structure_id}}:System Health', '{{data.structure_id}}: # Fibres', '{{data.structure_id}} Active Fibre Count', {{ns.order}}, 0, 0, 0, 0, 'fiber_count|asset={{data.asset_id}}', 'tStore', 0, 0, 0, 0, 9999, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+{% set ns.order = ns.order + 1 %}
+{% set ns.total_order = ns.order %}
+{% set ns.order = ns.order + 1 %}
+{% set ns.total = '' %}
+{% for f in range(data.totalFibers) %}
+    {% set ns.curr = '[fiber_sensor_count|asset='%}
+    {% set ns.curr = ns.curr + data.asset_id + ',fiber=' %}
+    {% set ns.curr = ns.curr + ((f + 1)|string) + ']' %}
+    {% set ns.total = ns.total + ns.curr %}
+    {%  if not loop.last %}
+        {% set ns.total = ns.total + '+' %}
+    {% endif %}
+('{{data.structure_id}}:F0{{f + 1}} # Sensors', '{{data.structure_id}}:System Health', '{{data.structure_id}}: F0{{f + 1}} # Sensors', '{{data.structure_id}} F0{{f + 1}} Active Sensors', {{ns.order}}, 0, 0, 0, 24, '<{{ns.curr}}>', 'tStore', 25, 26, 0, 24, 0, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+    {% set ns.order = ns.order + 1 %}
+{% endfor %}
+('{{data.structure_id}}:# Total Sensors', '{{data.structure_id}}:System Health', '{{data.structure_id}}: Total Sensors', '{{data.structure_id}} Total Active Sensor Count', {{ns.total_order}}, 0, 0, 0, 0, '<{{ns.total}}>', 'tStore', 0, 0, 0, 0, 500, {{ns.total_order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'),
+
+-- Sensors
+{% for f in range(data.totalFibers) %}
+    {% set ns.order = 1 %}
+    {% for s in range(25) %}
+('{{data.structure_id}}:WLS F{{f + 1}},S{{s + 1}}', '{{data.structure_id}}:Fibre {{f + 1}}', '{{data.structure_id}}:WLS F{{f + 1}},R{{s + 1}}', '{{data.structure_id}} - Fibre {{f + 1}} - Sensor {{s + 1}}', {{ns.order}}, 1500, 0, 0, 0, 'wavelength_shift|asset={{data.asset_id}},fiber={{f + 1}},sensor={{s + 1}}', 'tStore', 0, 0, 0, 0, 1600, {{ns.order}}, '{{data.structure_id}}', '', '', '', 0, 0, 0, 0, 'ops', '{{data.structure_id}}', 'good'){% if not loop.last%},
+            {% endif %}
+        {% set ns.order = ns.order + 1 %}
+    {% endfor %}
+{% if not loop.last%},{% endif %}
+{% endfor %}
+

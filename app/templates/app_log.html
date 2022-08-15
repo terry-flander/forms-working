@@ -1,0 +1,35 @@
+{% extends "app_header_no_menu.html" %}
+{% block content %}
+    <div>
+      <div class="submenu">
+        Log to Display:
+        <select name="log_namne" id="log_name">
+            <option value="app_info">Application Information</option>
+            <option value="app_debug">Debug Log</option>
+            <option value="webserver">Webserver Log</option>
+        </select>
+        <button class="button blue" onclick="sendData()">Load Log</button>
+    </div>
+    <div class="about">
+      <div id="output" style="font-family:monospace; padding: 2px; visibility:hidden;"></div>
+    </div>
+  
+    <script type="application/javascript">
+
+      function sendData() {
+        var http = new XMLHttpRequest();
+        http.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("output").innerHTML = this.responseText;
+                document.getElementById("output").style.visibility = "visible";
+            }
+        };
+
+        new_log = document.getElementById('log_name').value;
+        http.open('GET', new_log, true);
+        http.setRequestHeader('content-type', 'plain/text;charset=UTF-8');
+        http.send();
+      }
+    </script>
+
+{% endblock %}

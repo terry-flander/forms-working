@@ -1,0 +1,81 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+<table width="100%">
+    <td width="50%" style="font-weight: bold; padding: 15px;">{{data[0].title}}</td>
+    <td width="50%" style="text-align:right;font-weight: bold; padding: 15px;">
+        <a href="javascript:NewEditTab('/app/edit/reference/{{data[0].path}}/** New **', '_form_new')">+ Add New {{data[0].title}}</a>
+        <img style='height:20px;' src='/app/static/reload.png' onclick="reloadPage()">
+      </td>
+  </tr></table>
+
+<div class="home" id="output" style="visibility:hidden"></div>
+
+<table id="submissions" class="display">
+    <thead>
+        <tr><th>ID</th><th>Description</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+{% for s in data %}
+    {% if s.id != '** New **' %}
+    <tr>
+    <td><a href="javascript:NewEditTab('/app/edit/reference/{{s.path}}/{{s.id}}', '_ref')">{{s.id}}</a></td>
+    <td>{{s.description}}</td></td>
+    <td>
+    &nbsp;<a href="javascript:action('copy', '{{s.path}}', '{{s.id}}')">Copy</a>
+    &nbsp;<a href="javascript:action('delete', '{{s.path}}', '{{s.id}}')">Delete</a>
+    </td></tr>
+    {% endif %}
+{% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}
+
+<script>
+    $(document).ready( function () {
+        $('#submissions').DataTable();
+    } );
+
+    function NewEditTab(href, target) {
+        window.open(href,"edit_reference");
+    }
+
+    function reloadPage() {
+        location.reload();
+    }
+
+    function action(action, path, id) {
+        if (action == 'copy') {
+            let new_id = prompt("Enter new ID for Copy");
+            if (new_id != null) {
+                sendData('copy', path, id, new_id);
+            }
+        } else {
+            if (confirm("Are you SURE you want to delete " + id + "?")) {
+                sendData('delete', path, id, "");
+            }
+        }
+    }
+
+    function sendData(action, path, id, new_id) {
+
+        var http = new XMLHttpRequest();
+        http.onreadystatechange = async function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("output").innerHTML = this.responseText;
+                document.getElementById("output").style.visibility = "visible";
+                await new Promise(r => setTimeout(r, 2000));
+                location.reload();
+            }
+        };
+        let data = '{"action": "' + action + '", "path": "' + path + '", "keyfield": "id", "id": "' + id + '", "new_id": "' + new_id + '"}';
+
+        http.open('POST', '../../action/submission', true);
+        http.setRequestHeader('content-type', 'application/json;charset=UTF-8');
+        http.send(JSON.stringify(data));
+    }
+</script>
+{% endblock javascripts %}
