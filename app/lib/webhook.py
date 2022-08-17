@@ -182,7 +182,7 @@ def webhook_update_metadata(path, data):
         try:
             timescale_connection = ''
             # transpara_get_groups('ops');
-            # timescale_connection = 'dbname=postgres user=postgres password=prototype-db-123 host=54.252.242.116 port=5432'
+            # timescale_connection = 'dbname=postgres user=postgres password= host= port=5432'
             timescale = Timescale()
             con_result = timescale.connect(timescale_connection)
             if con_result != 'ok':

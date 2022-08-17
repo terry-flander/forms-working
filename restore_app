@@ -1,6 +1,14 @@
 # load the app forms and submission from backup_app
 . config/env/development.env
 # #!/bin/bash
+
+
+echo "\nLoad all Forms and Submissions from backup_dir/<unzipped backup>"
+echo "** Will CREATE any which do not already exist **"
+echo "** Will REPLACE any which already exist **"
+echo "** All user records loaded will have the default password 'CHANGEME' due to API restrictions **"
+echo "Any changes made locally will be lost!\n"
+
 files=( "backups/"*.zip )
 PS3='Select file to upload, or 0 to exit: '
 select file in "${files[@]}"; do
@@ -13,12 +21,7 @@ select file in "${files[@]}"; do
         break
     fi
 done
-echo $file
-
-echo "\nLoad all Forms and Submissions from backup_dir/<unzipped backup>"
-echo "** Will CREATE any which do not already exist **"
-echo "** Will REPLACE any which already exist **"
-echo "Any changes made locally will be lost!\n"
+echo "Will use "$file" as input file\n"
 read -p "Do you want to proceed? (yes/no) " yn
 
 case $yn in 

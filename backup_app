@@ -2,8 +2,7 @@
 . config/env/development.env
 #!/bin/bash
 echo "\nPull all Forms and Submissions from Source system"
-echo "** will save all into tmp/* **"
-echo "** will zip all into named  backup file **\n"
+echo "** and save as backup/backup_<YYYYmmdd_HHMM> **\n"
 read -p "Do you want to proceed? (yes/no) " yn
 
 case $yn in 
