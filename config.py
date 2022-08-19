@@ -42,6 +42,7 @@ class DevelopmentConfig(Config):
 
     MESSAGE_FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
     LOGGING_LEVEL = 'DEBUG'
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
 class StagingConfig(Config):
     TESTING = True

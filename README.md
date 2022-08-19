@@ -1,10 +1,10 @@
 Forms Working
 ===============================
-The Forms Working Development Environment provides a unified platform which enables the form.io Forms Designer with a complete Python Flask based website and provide:
+The Forms Working Development Environment provides a unified platform which enables the form.io Forms Designer with a complete Python Flask based website and provides:
 
 - Separate Forms and Data Tenency for multiple applications and data
-- User defined views of application data
-- Unlimited number of forms and resources supported
+- User defined Views of application data
+- Unlimited number of Forms and Resources supported
 - Full role based user security of tenents, views and form submissions
 - Managed support for local development and promtes shared environments -- testing, stageing, production, etc.
 
@@ -90,11 +90,11 @@ from https://github.com/formio/formio/archive/refs/heads/master.zip
    ```
    unzip master
    ```
-3. Install git for pulling ops-portal repo
+3. Install git for pulling forms-working repo
    ```
    sudo yum install git
    ```
-4. Git clone ops-portal repo
+4. Git clone forms-working repo
    ```
    git clone https://github.com/terry-flander/forms-working.git
    ```
@@ -103,9 +103,9 @@ from https://github.com/formio/formio/archive/refs/heads/master.zip
    mkdir env
    pip3 install -t env -r requirements.txt
    ```
-6. (PRODUCTION ONLY) Install the ops-portal configuration files into formio-master
+6. (PRODUCTION ONLY) Install the forms-working configuration files into formio-master
    ```
-   cp ops-portal/config/* formio-master
+   cp forms-working/config/* formio-master
    ```
 7. Install node libraries required
    ```

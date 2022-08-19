@@ -1,6 +1,7 @@
 
 """Routes for parent Flask app."""
 
+from operator import index
 from flask import Flask
 from flask import Flask, render_template, request, session, send_file
 from flask import current_app as app
@@ -289,20 +290,24 @@ def copy_reference():
     return formio.rename_reference(keyfield, id, new_id, token)
 
   elif (action == 'copy'):
-    new_id = data['new_id']
-    # Check for duplicate
-    if formio.get_submission_id(path, keyfield, new_id) != 'new':
-      return f'Reference {new_id} already exists'
-    from_submission = formio.get_submission(path, keyfield, id)
-    new_submission = update_copy(from_submission, keyfield, new_id)
-    token = get_session_value('token')
-    new_reference = formio.update_submission(new_submission, path, keyfield, new_id, token)
-    if new_id in new_reference['data'].values():
-      app_logger.info('Copy successful')
-      return "Copy Successful"
-    else:
-      app_logger.warn(new_reference)
-      return new_reference
+    try:
+      new_id = data['new_id']
+      # Check for duplicate
+      if formio.get_submission_id(path, keyfield, new_id) != 'new':
+        return f'Reference {new_id} already exists'
+      from_submission = formio.get_submission(path, id)
+      new_submission = update_copy(from_submission, keyfield, new_id)
+      token = get_session_value('token')
+      new_reference = formio.update_submission(new_submission, path, keyfield, new_id, token)
+      if new_id in new_reference['data'].values():
+        app_logger.info('Copy successful')
+        return "Copy Successful"
+      else:
+        app_logger.warn(new_reference)
+        return new_reference
+    except Exception as ex:
+      app_logger.error(ex)
+      return "Error: Check Log"
 
   elif action == 'delete':
     # Check that exists to delete
@@ -353,6 +358,24 @@ def view_json(path, keyvalue):
       return send_file(fileName)
     else:
       return '<h1>Download DIS JSON</h1><h2>No JSON file exists</h2>'
+  
+@app.route('/doc/<doc_id>', methods=['GET'])
+def render_doc(doc_id):
+ 
+  doc_sub = formio.get_submission('documents', doc_id)
+  wrap_sub = formio.get_submission('documents', 'manual-wrapper')
+  sidenav = formio.get_menu_layout('manual')
+
+  if doc_sub != None:
+    document_content = doc_sub['data']['document_content']
+    if wrap_sub != None:
+      wrapper_content = wrap_sub['data']['document_content']
+    else:
+      wrapper_content = '{{document_content}}'
+    html = wrapper_content.replace('{{document_content}}',document_content)
+    return jinja.render_doc(html, data=sidenav)
+  else:
+    return render_template('home/page-404.html'), 404
   
 @app.route('/app_log/<log_type>', methods=['GET'])
 def app_log(log_type):
@@ -413,8 +436,12 @@ def formio_update_submission(path, keyvalue):
   company_access = formio.get_access_list(session['access_object'], 'company', 'full')
 
   token = get_session_value('token')
-  update_result = formio.update_submission(request.json, path, keyvalue, token, company_access)
-  debug_logger.debug(f'{update_result}')
+  try:
+    update_result = formio.update_submission(request.json, path, keyvalue, token, company_access)
+    debug_logger.debug(f'{update_result}')
+  except Exception as ex:
+    debug_logger.error(f'{ex}')
+
   if update_result[0] != 'ok':
     return update_result[1], 400
 
@@ -458,7 +485,11 @@ def formio_update_reference_submission(path, keyvalue):
     return home()
 
   token = get_session_value('token')
-  result = formio.update_submission(request.json, path, keyvalue, token)
+  try:
+    result = formio.update_submission(request.json, path, keyvalue, token)
+  except Exception as ex:
+    app_logger.err(f'{ex}')
+  
   if result != None:
     r = wh.do_webhooks(request.json, path, token)
     if r != 'ok':
@@ -494,10 +525,11 @@ def formio_get_reference_form(path):
 def formio_get_reference_submissions(path):
   submission_args = None
   try:
+    index_field = formio.get_form_keyfield(path)
     limit = request.args.get('limit', default = '999', type = str)
     skip = request.args.get('skip', default = '0', type = str)
     id__regex = request.args.get('data.id__regex', default = '', type = str)
-    submission_args = f'?limit={limit}&skip={skip}&sort=data.id' # &data.id__regex={id__regex}'
+    submission_args = f'?limit={limit}&skip={skip}&sort=data.{index_field}' # &data.id__regex={id__regex}'
   except:
     submission_args = None
 

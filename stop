@@ -12,5 +12,5 @@ echo "Stopping Docker containers..."
 cd ../formio-master
 docker-compose -f $DOCKERCOMPOSE down
 
-cd ../ops-portal
+cd ../forms-working
 

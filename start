@@ -19,7 +19,7 @@ echo "Starting Docker containers..."
 cd ../formio-master
 docker-compose -f $DOCKERCOMPOSE up -d
 
-cd ../ops-portal
+cd ../forms-working
 rm -f tmp/session/admin/token.txt
 
 echo "Starting webserver..."

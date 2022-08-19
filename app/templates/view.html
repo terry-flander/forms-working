@@ -1,16 +1,17 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
-<table width="100%">
-  <td width="50%" style="font-weight: bold; padding: 15px;">{{data.title}}</td>
-  <td width="50%" style="text-align:right;font-weight: bold; padding: 15px;">
-  {% if data.add_new %}
-      <a href="javascript:NewEditTab('/app/edit/{{data.primaryForm}}/** New **', '_form_new')">+ Add New {{data.title}}</a>
-      <img style='height:20px;' src='/app/static/reload.png' onclick="reloadPage()">
-      {% endif %}
-    </td>
-</tr></table>
+  <div class="d-flex justify-content-between p-3">
+    <div style="font-weight: bold">{{data.title}}</div>
+    <div>
+    {% if data.add_new %}
+        <a href="javascript:NewEditTab('/app/edit/{{data.primaryForm}}/** New **', '_form_new')">+ Add</a>
+        <img style='height:20px;' src='/app/static/reload.png' onclick="reloadPage()">
+        {% endif %}
+    </div>
+  </div>
 
-    <table id="server" class="display">
+  <div class="table-responsive">
+    <table id="server" class="table table-striped">
       <thead>
         <tr>{{data.browseLabels | safe}}</tr>
       </thead>
@@ -18,6 +19,7 @@
         <tr>{{data.browseLabels | safe}}</tr>
       </tfoot>
     </table>
+  </div>
   {% endblock content %}
 
     <!-- Specific JS goes HERE --> 

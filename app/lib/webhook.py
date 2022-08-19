@@ -101,9 +101,11 @@ def get_workflows(path):
     result = None
     try:
         sub = formio.get_submission('app-forms', path)
-        result = sub['data']['workflows']
+        if 'addWorkflow' in sub['data'] and sub['data']['addWorkflow'] == True:
+            result = sub['data']['workflows']
     except Exception as ex:
         app_logger.error(ex)
+    app_logger.info(result)
     return result
 
 '''

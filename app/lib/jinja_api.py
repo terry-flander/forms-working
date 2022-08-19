@@ -2,7 +2,7 @@
 import logging
 import os
 
-from jinja2 import Environment, FileSystemLoader, UndefinedError, select_autoescape, Template, TemplateSyntaxError, TemplateError
+from jinja2 import Environment, FileSystemLoader, UndefinedError, select_autoescape, Template, TemplateSyntaxError, TemplateError, BaseLoader
 from pathlib import Path
 import pandas as pd
 import xlsxwriter
@@ -37,6 +37,10 @@ def render_report_template(templateFile, data):
     except Exception as ex:
         app_logger.error(ex)
         return None
+
+def render_doc(doc_content, data={}):
+      rtemplate = Environment(loader=BaseLoader()).from_string(doc_content)
+      return rtemplate.render(data=data)
 
 def save_doc(dir, path, file_name, ext, doc):
     result = 'ok'

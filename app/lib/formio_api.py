@@ -142,7 +142,7 @@ def patch_submission(data, keyvalue, user_token, paths=None):
     patchDoc = json.loads(data[1])
     token = get_formio_login()
     if paths == None:
-        paths = f'{MAPPING_DESIGN},{DIS_AS_DESIGN},{DIS_AS_BUILT}'
+        paths = f''
     for path in paths.split(","):
         index_field = get_form_keyfield(path)
         submission_id = get_submission_id(path, index_field, keyvalue)
@@ -548,12 +548,16 @@ def logEvent(bi, res, path, action, comment, token):
                 "logComment": changes
             }
         }
-
-    admin_token = get_formio_login()
-    url = f'http://{FORMIO_URL}/change-log/submission'
-    r = requests.post(url, json=eventData, headers={"x-jwt-token": admin_token})
-    debug_logger.debug(f'{path}')
-    return r.json()
+    try:
+        admin_token = get_formio_login()
+        url = f'http://{FORMIO_URL}/change-log/submission'
+        debug_logger.debug(f'{url}')
+        r = requests.post(url, json=eventData, headers={"x-jwt-token": admin_token})
+        debug_logger.info(r)
+        return r.json()
+    except Exception as ex:
+        debug_logger.error(ex)
+        return None
 
 def get_changes(bi, ai):
     diff = ''

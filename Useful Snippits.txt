@@ -12,3 +12,14 @@ data.id__regex
 
 Item Template:
 <span>{{ item.data.id }} - {{ item.data.description }}</span>
+
+Data Source: Custom
+Custom Values
+table = JSON.parse(data.country.data.json_table );
+values = table.json_table;
+
+Item Template
+<span>{{ item.label }}</span>
+
+Refresh On
+Country

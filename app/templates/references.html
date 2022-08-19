@@ -1,16 +1,27 @@
 {% extends 'layouts/base.html' %}
 {% block content %}
+<div class="d-flex justify-content-between p-3">
+    <div style="font-weight: bold">{{data[0].title}}</div>
+    <div>
+        <a href="javascript:NewEditTab('/app/edit/reference/{{data[0].path}}/** New **', '_form_new')">+ Add</a>
+        <img style='height:20px;' src='/app/static/reload.png' onclick="reloadPage()">
+    </div>
+</div>
+<!--
 <table width="100%">
-    <td width="50%" style="font-weight: bold; padding: 15px;">{{data[0].title}}</td>
+    <td width="50%" style="font-weight: bold; padding: 15px;">{{data[0].title}}
+        <a href="javascript:NewEditTab('/app/edit/reference/{{data[0].path}}/** New **', '_form_new')">+ Add</a>
+    </td>
     <td width="50%" style="text-align:right;font-weight: bold; padding: 15px;">
-        <a href="javascript:NewEditTab('/app/edit/reference/{{data[0].path}}/** New **', '_form_new')">+ Add New {{data[0].title}}</a>
         <img style='height:20px;' src='/app/static/reload.png' onclick="reloadPage()">
       </td>
-  </tr></table>
-
+  </tr>
+</table>
+-->
 <div class="home" id="output" style="visibility:hidden"></div>
 
-<table id="submissions" class="display">
+<div class="table-responsive">
+<table id="submissions" class="table  table-striped">
     <thead>
         <tr><th>ID</th><th>Description</th><th>Action</th></tr>
     </thead>
@@ -28,6 +39,7 @@
 {% endfor %}
     </tbody>
 </table>
+</div>
 
 {% endblock content %}
 
@@ -36,7 +48,9 @@
 
 <script>
     $(document).ready( function () {
-        $('#submissions').DataTable();
+        $('#submissions').DataTable(
+            {"pageLength": 25}
+        );
     } );
 
     function NewEditTab(href, target) {
