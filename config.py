@@ -51,6 +51,6 @@ class StagingConfig(Config):
     DB_USERNAME = "admin"
     DB_PASSWORD = "example"
 
-    FORMIO_PORT = 8080
+    FORMIO_PORT = 8010
 
     SESSION_COOKIE_SECURE = False
