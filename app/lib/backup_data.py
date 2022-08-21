@@ -18,7 +18,8 @@ def get_args():
             "local_host": "http://" + FORMIO_URL,
             "admin_user": "admin@example.com",
             "admin_password": "CHANGEME",
-            "backup_dir": "backups"
+            "backup_dir": "backups",
+            "skip_paths": ["admin"]
         }
 
     return args
@@ -40,12 +41,13 @@ def get_token(host, admin_user, admin_password):
         print({ex})
     return token
 
-def get_forms(host, token):
+def get_forms(host, token, skip_paths):
     result = []
     url = f'{host}/form?sort=path&&limit=9999'
     r = requests.get(url, headers={"x-jwt-token": token})
     for f in r.json():
-        result.append(f)
+        if not f['path'] in skip_paths:
+            result.append(f)
     return result
 
 def get_submissions_for_path(path, host, token):
@@ -101,7 +103,7 @@ local_token = get_token(local_host, args['admin_user'], args['admin_password'])
 backup_dir = args['backup_dir']
 
 print(f'** Get Forms and Submissions from {local_host}')
-forms_to_pull = get_forms(local_host, local_token)
+forms_to_pull = get_forms(local_host, local_token, args['skip_paths'])
 for form in forms_to_pull:
     path = form['path']
     if path == 'admin':
