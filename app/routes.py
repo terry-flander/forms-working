@@ -32,7 +32,7 @@ def home():
 
 @app.route('/profile.html')
 def route_profile():
-  path = 'user'
+  path = 'user-profile'
   keyvalue = session['current_user']
   app_logger.info(f'{path} {keyvalue}')
   if get_session_logged_in() == None:
@@ -48,6 +48,8 @@ def route_profile():
     view_access = formio.get_access_list(session['access_object'], 'view', 'full')
     form_access = formio.get_access_list(session['access_object'], 'form', 'full')
     sidenav = formio.get_menu_layout('sidenav')
+
+    formio.create_submission(path, keyvalue)
 
     return render_template('home/profile.html', path=path, keyvalue=keyvalue, desc=desc, ops_portal_url=ops_portal_url
     ,view_access=view_access, form_access=form_access, sidenav=sidenav, segment='')

@@ -242,6 +242,25 @@ def validate_submission(data, path):
     else:
         debug_logger.debug(r.text)
         return r.text
+
+def create_submission(path, keyvalue):
+    index_field = get_form_keyfield(path)
+    debug_logger.debug(f'{path}, {index_field}={keyvalue}')
+    token = get_formio_login()
+    submission_id = get_submission_id(path, index_field, keyvalue)
+    if submission_id == 'new':
+        debug_logger.debug(f'new {path} / {index_field} = {keyvalue}')
+        data = {
+            "data": {
+                index_field: keyvalue
+            }
+        }
+        url = f'http://{FORMIO_URL}/{path}/submission'
+        r = requests.post(url, json=data,  headers={"x-jwt-token": token})
+        return r.json()
+    else:
+        debug_logger.debug(f'path {path} index_field: {index_field} keyvalue: {keyvalue} id: not found')
+        return ''
     
 # Use form path to determine field to match
 def get_submission(path, keyvalue):

@@ -7,7 +7,23 @@
 
 {% block content %}
 
-    <!-- Page content -->
+<body>
+  <nav class="navbar navbar-top navbar-expand navbar-dark bg-primary border-bottom d-flex justify-content-between p-3">
+    <div>
+      <a href="/app">
+        <img src="/app/static/logo-new.png" style="width:200px;" alt="Flander, Beyer and Associates P/L">
+      </a>
+      </div>
+    <div class="text-white" style="font-size: 2rem">{{keyvalue}} - {{desc}}</div>
+</nav>
+
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-light overflow-auto" style="width:max-content">
+  <div class="container" style="margin: 10px;">
+    <div id='formio'></div>
+</div>
+</body>
+
+<!-- Page content -->
     <div class="container mt--8 pb-5">
       <div class="row justify-content-center">
         <div class="col-lg-5 col-md-7">

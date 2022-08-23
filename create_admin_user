@@ -1,0 +1,18 @@
+# load the app forms and submission from backup_app
+. config/env/development.env
+# #!/bin/bash
+
+
+echo "***********************************************"
+echo "* Create new Admin User                       *"
+echo "* Admin User is ONLY used for two functions:  *"
+echo "* 1. Create/Update access to form builder     *"
+echo "* 2. API access permissions                   *"
+echo "* If you use an email address which already   *"
+echo "* exists, the password will be updated.       *"
+echo "***********************************************"
+
+read -p "Admin email: " email
+read -p "Admin password: " password
+
+python3 ./app/lib/create_admin_user.py $email $password

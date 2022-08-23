@@ -1,15 +1,9 @@
 # Start whole environment based on location -- will also run server
-env=${1:-"development"}
-docker=${2:-"local"}
+env=${1:-"local"}
 
-echo $env $docker
+echo $env
 
-if [ "$env" == "development" ]
-then
-    DOCKERCOMPOSE="docker-compose-$docker.yml"
-else
-    DOCKERCOMPOSE="docker-compose-production.yml"
-fi
+DOCKERCOMPOSE="docker-compose-$env.yml"
 
 echo "Update scripts in formio-master..."
 cp config/docker-compose-*.yml ../formio-master
