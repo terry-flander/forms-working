@@ -23,7 +23,7 @@
 <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
 <script type='text/javascript'>
  window.onload = function() {
-    Formio.createForm(document.getElementById('formio'), '{{ops_portal_url}}/app/formio/{{path}}/submission/{{keyvalue}}');
+    Formio.createForm(document.getElementById('formio'), '{{ops_portal_url}}/app/formio/{{data.path}}/submission/{{data.keyvalue}}');
   };
 </script>
 {% endblock javascripts %}

@@ -1,31 +1,34 @@
 <div class="d-flex flex-column flex-shrink-0 p-3 bg-light overflow-auto" style="width:auto">
-    {% for menu in sidenav.data.menuSection %}
+  <a class="bd-toc-item">
+    DASHBOARDS
+  </a>
+  <ul class="bd-sidenav">
+      <li><a href="javascript:NewTab('/app','_admin')">Profile</a></li>
+  </ul>
+
+  {% for menu in sidenav.data.menuSection %}
     <a class="bd-toc-item">
-      {{menu.sectionName}}
+      {{menu.sectionName | upper}}
     </a>
     
-      <ul class="bd-sidenav">
-  {% for item in menu.menuSectionItems %}
-      <li>
-          {% if item.menuItemType == 'resource' %}
-          <a href="javascript:NewTab('/app/tool/reference/{{item.menuItemForm}}','_admin')">
-          {% endif %}
-          {% if item.menuItemType == 'view' %}
-          <a href="javascript:NewTab('/app/view/{{item.menuItemView}}','_admin')">
-          {% endif %}
-          {% if item.menuItemType == 'url' %}
-          <a href="javascript:NewWindow('{{item.menuItemUrl}}','_admin')">
-          {% endif %}
-          {% if item.menuItemType == 'tool' %}
-          <a href="javascript:NewTab('/app/tool/{{item.menuItemTool}}','_admin')">
-          {% endif %}
-          {% if item.menuItemType == 'edit' %}
-          <a href="javascript:NewWindow('../../edit/reference/{{item.menuItemForm}}/{{item.menuItemTool}}','_admin')">
-          {% endif %}
-          {{item.menuItemLabel}}
-          </a>
-      </li>
+    <ul class="bd-sidenav">
+    {% for item in menu.menuSectionItems %}
+      {% if item.menuItemType == 'resource' and item.menuItemForm in form_access %}
+      <li><a href="javascript:NewTab('/app/tool/reference/{{item.menuItemForm}}','_admin')">{{item.menuItemLabel}}</a></li>
+      {% endif %}
+      {% if item.menuItemType == 'view' and item.menuItemView in view_access %}
+      <li><a href="javascript:NewTab('/app/view/{{item.menuItemView}}','_admin')">{{item.menuItemLabel}}</a></li>
+      {% endif %}
+      {% if item.menuItemType == 'url' %}
+      <li><a href="javascript:NewWindow('{{item.menuItemUrl}}','_admin')">{{item.menuItemLabel}}</a></li>
+      {% endif %}
+      {% if item.menuItemType == 'tool' %}
+      <li><a href="javascript:NewTab('/app/tool/{{item.menuItemTool}}','_admin')">{{item.menuItemLabel}}</a></li>
+      {% endif %}
+      {% if item.menuItemType == 'edit' and item.menuItemForm in form_access %}
+      <li><a href="javascript:NewWindow('/app/edit/reference/{{item.menuItemForm}}/{{item.menuItemTool}}','_admin')">{{item.menuItemLabel}}</a></li>
+      {% endif %}
     {% endfor %}
-      </ul>
+    </ul>
   {% endfor %}
 </div>

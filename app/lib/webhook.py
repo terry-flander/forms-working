@@ -40,8 +40,8 @@ def do_webhooks(data, path, token):
     if workflows != None:
         for w in workflows:
             map_data = {}
-            if check_flag(data, w['trigger_field_id'], w['other_trigger_field_id']):
-                for a in w.workflowActions:
+            if check_flag(data, w['trigger_field_id'], w['trigger_field_id']):
+                for a in w['workflowActions']:
                     method = a['method']
                     argument = a['argument']
                     if method == 'update_initial_mapping':

@@ -269,7 +269,6 @@ def get_submission(path, keyvalue):
     token = get_formio_login()
     submission_id = get_submission_id(path, index_field, keyvalue)
     if submission_id != 'new':
-        debug_logger.debug(f'path {path} index_field: {index_field} keyvalue: {keyvalue} id: {submission_id}')
         url = f'http://{FORMIO_URL}/{path}/submission/{submission_id}'
         r = requests.get(url, headers={"x-jwt-token": token})
         return r.json()
@@ -467,6 +466,17 @@ def check_form(path, access):
             result = path in access
     except Exception as ex:
         app_logger.error(f'Error: {ex} with path: {path} access: {access}')
+    return result
+
+def check_view(view, access):
+    result = False
+    try:
+        if '*' in access:
+            result = True
+        else:
+            result = view in access
+    except Exception as ex:
+        app_logger.error(f'Error: {ex} with view: {view} access: {access}')
     return result
 
 # Get Reference Submissions for path
@@ -714,6 +724,7 @@ def log_promote(data):
         result = r.json()
 
     except Exception as ex:
+        app_logger.error(ex)
         result = ex
 
     finally:

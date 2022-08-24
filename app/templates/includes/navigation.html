@@ -20,14 +20,14 @@
                 </svg>              </span>
               <div class="media-body  ml-2  d-none d-lg-block">
                 <span class="mb-0 text-sm  font-weight-bold">
-                  Account
+                  {% if user_profile %}{{user_profile.data.firstName}}{% else %}Account{% endif%}
                 </span>
               </div>
             </div>
           </a>
           <div class="dropdown-menu  dropdown-menu-right " id="account-collapse-1">
             <a href="/app/profile.html" class="dropdown-item">
-              <span>My profile</span>
+              <span>Your profile</span>
             </a>
             <a target="_blank" href="/app/edit/change-password/xxx" class="dropdown-item">
               <span>Change Password</span>

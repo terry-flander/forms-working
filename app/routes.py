@@ -28,7 +28,12 @@ def home():
   if get_session_logged_in() == None:
     return render_template('login.html')
   else:
-    return renderWithMenus(request, "home/index.html", None)
+    user_profile = formio.get_submission('user-profile',session['current_user'])
+    if user_profile != '':
+      path = user_profile['data']['defaultView']
+      return view(path)
+    else:
+      return renderWithMenus(request, "home/index.html", None)
 
 @app.route('/profile.html')
 def route_profile():
@@ -43,16 +48,12 @@ def route_profile():
   if f == {}:
     return f'Unable to find form: {path}'
   else:
-    desc = f["title"]
-    ops_portal_url = os.environ.get('OPS_PORTAL_URL')
-    view_access = formio.get_access_list(session['access_object'], 'view', 'full')
-    form_access = formio.get_access_list(session['access_object'], 'form', 'full')
-    sidenav = formio.get_menu_layout('sidenav')
-
     formio.create_submission(path, keyvalue)
-
-    return render_template('home/profile.html', path=path, keyvalue=keyvalue, desc=desc, ops_portal_url=ops_portal_url
-    ,view_access=view_access, form_access=form_access, sidenav=sidenav, segment='')
+    data = {
+        "path": path,
+        "keyvalue": keyvalue
+    }
+    return renderWithMenus(request, 'home/profile.html', data=data)
 
 
 @app.route('/<template>')
@@ -179,7 +180,7 @@ def view(view_id):
     if get_session_logged_in() == None:
         return home()
     
-    if not get_form_access('view'):
+    if not get_view_access(view_id):
         return 'Access to view not allowed'
 
     data = formio.get_view_layout(view_id)
@@ -190,11 +191,13 @@ def view(view_id):
         return f'No view exists for {view_id}'
 
 def renderWithMenus(request, form, data):
+    ops_portal_url = os.environ.get('OPS_PORTAL_URL')
     sidenav = formio.get_menu_layout('sidenav')
     segment = get_segment(request)
     view_access = formio.get_access_list(session['access_object'], 'view', 'full')
     form_access = formio.get_access_list(session['access_object'], 'form', 'full')
-    return render_template(form, data=data, view_access=view_access, form_access=form_access, segment=segment, sidenav=sidenav)
+    user_profile = formio.get_submission('user-profile',session['current_user'])
+    return render_template(form, data=data, view_access=view_access, form_access=form_access, segment=segment, sidenav=sidenav, user_profile=user_profile, ops_portal_url=ops_portal_url)
 
 # Helper - Extract current page name from request
 def get_segment(request):
@@ -549,6 +552,10 @@ def get_session_logged_in():
 def get_form_access(path):
   form_access = formio.get_access_list(session['access_object'], 'form', 'read')
   return formio.check_form(path, form_access)
+
+def get_view_access(view):
+  view_access = formio.get_access_list(session['access_object'], 'view', 'read')
+  return formio.check_view(view, view_access)
 
 def get_session_value(id):
   if (not session.get('logged_in') or session.get('logged_in') == None) and not TESTING:
