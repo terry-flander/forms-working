@@ -1,6 +1,6 @@
 # Start maintenance webservice
 action=${1:-"start"}
-env=${2:-"development"}
+env=${2:-"local"}
 
 if [ "$action" == "stop" ] || [ "$action" == "restart" ]
 then
@@ -30,5 +30,5 @@ if [ "$action" != "start" ] && [ "$action" != "stop" ] && [ "$action" != "restar
 then
     echo "usage: server [ <action> [ <env> ] ]
        <action> -- start, stop or restart DEFAULT start
-       <env>    -- development, staging or production DEFAULT development"
+       <env>    -- local, staging or production DEFAULT local"
 fi

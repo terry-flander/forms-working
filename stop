@@ -1,9 +1,8 @@
 # Stop whole environment based on location -- will also stop server
-docker=${1:-"local"}
+env=${1:-"local"}
+echo $env
 
-echo $env $docker
-
-DOCKERCOMPOSE="docker-compose-$docker.yml"
+DOCKERCOMPOSE="docker-compose-$env.yml"
 
 echo "Stopping webserver..."
 ./server stop

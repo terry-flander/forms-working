@@ -1,6 +1,10 @@
-# load the app forms and submission from backup_app
-. config/env/development.env
 # #!/bin/bash
+# load the app forms and submission from backup_app
+# Start whole environment based on location -- will also run server
+
+env=${1:-"local"}x
+echo $env
+. config/env/$env.env
 
 
 echo "\nLoad all Forms and Submissions from backup_dir/<unzipped backup>"

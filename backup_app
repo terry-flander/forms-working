@@ -1,6 +1,11 @@
-# clone the app forms and submissiong
-. config/env/development.env
 #!/bin/bash
+# clone the app forms and submissiong
+
+env=${1:-"local"}x
+echo $env
+. config/env/$env.env
+
+
 echo "\nPull all Forms and Submissions from Source system"
 echo "** and save as backup/backup_<YYYYmmdd_HHMM> **\n"
 read -p "Do you want to proceed? (yes/no) " yn
