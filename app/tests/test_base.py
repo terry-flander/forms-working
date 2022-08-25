@@ -9,7 +9,7 @@ class UnitTest(unittest.TestCase):
     def setUp(self):
         self.template = {
                 "data": {
-                "index_id": "{{data.index_id}}",
+                "eloque_id": "{{data.eloque_id}}",
                 "structure_id": "{{data.structure_id}}",
                 "asset_name": "{{data.asset_name}}",
                 "fiasset_status": "{{data.fiasset_status}}"
@@ -17,7 +17,7 @@ class UnitTest(unittest.TestCase):
             }
         self.data = {
                 "data": {
-                "index_id": "index_id",
+                "eloque_id": "eloque_id",
                 "structure_id": "structure_id",
                 "asset_name": "asset_name",
                 "fiasset_status": "fiasset_status"
@@ -26,7 +26,7 @@ class UnitTest(unittest.TestCase):
         self.request = {
                 "request": {
                     "data": {
-                        "index_id": "index_id",
+                        "eloque_id": "eloque_id",
                         "structure_id": "structure_id",
                         "asset_name": "asset_name",
                         "fiasset_status": "fiasset_status"

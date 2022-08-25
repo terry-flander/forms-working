@@ -582,7 +582,6 @@ def logEvent(bi, res, path, action, comment, token):
         url = f'http://{FORMIO_URL}/change-log/submission'
         debug_logger.debug(f'{url}')
         r = requests.post(url, json=eventData, headers={"x-jwt-token": admin_token})
-        debug_logger.info(r)
         return r.json()
     except Exception as ex:
         debug_logger.error(ex)
