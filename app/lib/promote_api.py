@@ -22,11 +22,12 @@ def do_promote(data):
 
         if args['promote_type'] == 'form':
             promote_form(data, args)
-        elif args['promote_type'] == 'submission':
+        elif args['promote_type'] == 'singleSubmission' or args['promote_type'] == 'allSubmissions':
             if args["to_form"] == None:
                 return 'Form does not exist to Promote To Host'
             else:
-                return promote_submission(data, args)
+                submissions = get_submissions_for_path(args)
+                return promote_submissions(data, args, submissions)
         else:
             return 'Promote Type not recognised'
 
@@ -141,32 +142,25 @@ def get_form_version(form):
         _version = '.'.join(ver[len(ver) - 3:])
     return _version
 
-def promote_submission(data, args):
+def promote_submissions(data, args, submissions):
     try:
 
         # get from submission by ID
-        from_data = args["from_data"]
         to_data = args["to_data"]
         path = args["path"]
         index_field = args["index_field"]
-        key_value = args["key_value"]
-        from_token =args["from_token"]
         to_token =args["to_token"]
         from_form =args["from_form"]
         _form_version = get_form_version(from_form)
 
-        debug_logger.debug(f'{to_data}, {path}, {index_field}, {key_value}, {to_token}')
-
-        form_submission = get_submission(from_data, path, index_field, key_value, from_token)
-
-        # get to submission ID - None means form does not exist in target DB
-        if form_submission != None:
+        for form_submission in submissions:
+            key_value = form_submission['data'][index_field]
+            debug_logger.debug(f'{path}, {index_field}, {key_value}')
             form_submission['data']['_form_version'] = _form_version
             form_submission = data_changes(index_field, key_value, form_submission)
             res = update_submission(to_data, path, index_field, key_value, to_token, form_submission)
 
             data['description'] += "\n" + json.dumps(res, sort_keys=True, indent=4)
-            debug_logger.debug(data['description'])
             if "_version" in res['data']:
                 data['version'] = f'{_form_version} ({res["data"]["_version"]})'
             log = formio.log_promote(data)
@@ -233,11 +227,10 @@ def get_token(req):
 # Get Form by Form Path
 def get_form(path, host, token):
 
-    debug_logger.debug(f'{path} from ' + str(get_val(host, 'id')))
-
     # Use form path to determine field to match
     try:
         url = get_ip(host) + path
+        debug_logger.debug(f'{url}')
         r = requests.get(url, headers={"x-jwt-token": token})
         return r.json()
     except Exception as ex:
@@ -269,6 +262,29 @@ def get_version_list():
     debug_logger.debug(result)
     return result
 
+def get_submissions_for_path(args):
+    result = []
+    try:
+        promote_type = args['promote_type']
+        host = args["from_data"]
+        path = args["path"]
+        token =args["from_token"]
+        index_field = args["index_field"]
+
+        if promote_type == 'singleSubmission':
+            key_value = args["key_value"]
+            result.append(get_submission(host, path, index_field, key_value, token))
+        else:
+            url = f'{get_ip(host)}{path}/submission?limit=9999'
+            app_logger.info(f'all submissions: {url}')
+            r = requests.get(url, headers={"x-jwt-token": token})
+            for l in r.json():
+                if bool(l['data']):
+                    result.append(l)
+    except Exception as ex:
+        app_logger.error(ex)
+    return result
+
 # Use form path to determine field to match
 def get_submission(host, path, index_field, key_value, token):
     debug_logger.debug(f'{host} {path}, {index_field} {key_value}')
@@ -282,9 +298,7 @@ def get_submission(host, path, index_field, key_value, token):
         return None
 
 def get_submission_id(host, path, index_field, key_value, token):
-    debug_logger.debug(f'{host} {path} {index_field} {key_value}')
     url = get_ip(host) + path + f'/exists?data.{index_field}={key_value}'
-    debug_logger.debug(url)
     this_id = None
     r = requests.get(url, headers={"x-jwt-token": token})
     if r.text != 'Not found':
@@ -306,4 +320,8 @@ def update_submission(host, path, index_field, key_value, token, data):
     return r.json()
 
 def get_ip(host):
-    return 'http://' + get_val(host,'url') + ':' + str(get_val(host, 'port')) + '/'
+    try:
+        return 'http://' + get_val(host,'url') + ':' + str(get_val(host, 'port')) + '/'
+    except Exception as ex:
+        app_logger.error(f'Bad host: {host} {ex}')
+        return ''

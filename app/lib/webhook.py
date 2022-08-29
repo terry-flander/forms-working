@@ -39,11 +39,12 @@ def do_webhooks(data, path, token):
     response = "ok"
     if workflows != None:
         for w in workflows:
-            map_data = {}
+            map_data = None
             if check_flag(data, w['trigger_field_id'], w['trigger_field_id']):
                 for a in w['workflowActions']:
                     method = a['method']
                     argument = a['argument']
+                    app_logger.info(f'{method} {argument}')
                     if method == 'update_initial_mapping':
                         response = webhook_update_initial_mapping(data, token, argument)
 
@@ -61,7 +62,7 @@ def do_webhooks(data, path, token):
 
                     elif method == 'save_excel':
                         response = save_excel(path, data)
-                        if map_data != {}:
+                        if map_data != None:
                             response = save_excel(argument, map_data)
 
                     elif method == 'change_password':
@@ -81,7 +82,7 @@ def do_webhooks(data, path, token):
                         response = save_layout(argument, get_id(path, data), json.dumps(map_data))
 
                     elif method == 'save_map_data':
-                        response = webhook_update_submission(argument, data if map_data == {} else map_data, token)
+                        response = webhook_update_submission(argument, data if map_data == None else map_data, token)
     
     return response
 
@@ -105,7 +106,6 @@ def get_workflows(path):
             result = sub['data']['workflows']
     except Exception as ex:
         app_logger.error(ex)
-    app_logger.info(result)
     return result
 
 '''
@@ -145,7 +145,6 @@ def webhook_build_json(sub, path):
         return 'ok'
     except Exception as ex:
         app_logger.error(ex)
-        debug_logger.error(ex)
         return None
 
 def webhook_update_submission(path, data, token):
@@ -159,7 +158,6 @@ def webhook_update_submission(path, data, token):
         return 'ok'
     except Exception as ex:
         app_logger.error(ex)
-        debug_logger.error(ex)
         return None
 
 '''
@@ -237,19 +235,18 @@ def webhook_promote_form(req):
     
   except Exception as ex:
     app_logger.error(ex)
-    debug_logger.error(ex)
     return 'error'
 
-def template_map_data(argument, data, map_data):
+def template_map_data(argument, ref, map_data):
     result = 'ok'
     mapped = {}
+    data = ref['data'] if map_data == None else map_data
     try:
-        mapped = json.loads(jinja.render_template(argument, data if map_data == {} else map_data))
+        mapped = json.loads(jinja.render_template(argument, data))
 
     except Exception as ex:
         result = f'Unable to map data with: {argument}'
-        app_logger.error(ex)
-        debug_logger.error(ex)
+        app_logger.error(f'{result} {ex}')
 
     return result, mapped
 
@@ -319,7 +316,6 @@ def load_layout(path, id):
     except Exception as ex:
         result = f'Unable to display layout. In Mapping: Design you must first Build Design Layout'
         app_logger.error(ex)
-        debug_logger.error(ex)
 
     finally:
         return result

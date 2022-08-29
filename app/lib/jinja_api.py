@@ -8,17 +8,19 @@ import pandas as pd
 import xlsxwriter
 
 from app.lib.util import setup_logger
+# from app.routes import app_log
 debug_logger = setup_logger('debug', 'tmp/app_info.log', logging.DEBUG)
 app_logger = setup_logger('info', 'tmp/app_info.log', logging.INFO)
 
 templateLoader = FileSystemLoader(searchpath=["./app/templates/jinja/", "./tmp/test/path/"])
 env = Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
 
-def render_template(templateFile, data):
+def render_template(template, data):
+    templateFile = template + ('' if template.endswith('.jinja') else '.jinja')
     app_logger.info(f'template: {templateFile}')
     try:
         template = env.get_template(templateFile + ('' if templateFile.endswith('.jinja') else '.jinja'))
-        return template.render(data)
+        return template.render(data=data)
     except TemplateSyntaxError as ex:
         app_logger.warning(f'{ex.message} line {ex.lineno} name {ex.name} filename: {ex.filename}')
         return None
@@ -26,7 +28,7 @@ def render_template(templateFile, data):
         app_logger.warning({ex})
         return None
     except Exception as ex:
-        app_logger.error(str(ex))
+        app_logger.error(f'{templateFile} {ex}')
         return None
 
 def render_report_template(templateFile, data):

@@ -443,7 +443,6 @@ def formio_update_submission(path, keyvalue):
   token = get_session_value('token')
   try:
     update_result = formio.update_submission(request.json, path, keyvalue, token, company_access)
-    debug_logger.debug(f'{update_result}')
   except Exception as ex:
     debug_logger.error(f'{ex}')
 
