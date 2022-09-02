@@ -37,6 +37,7 @@ token -- Token allows new submissions to have current user ID
 def do_webhooks(data, path, token):
     workflows = get_workflows(path)
     response = "ok"
+    app_logger.info(f'{path} Workflows: {workflows}')
     if workflows != None:
         for w in workflows:
             map_data = None
@@ -322,20 +323,63 @@ def load_layout(path, id):
 
 def build_report(report, keyvalue):
 
-    data = []
-    rep = formio.get_submission('reports', report)
-    report_data = rep['data']
-    for source in report_data['sourceSubmissions']:
-        app_logger.info(f'{source} {source["app_form"]}')
-        sub = formio.get_submission(source['app_form'], keyvalue)
-        data.append(sub['data'])
-
-    result = jinja.render_report_template(report_data['templateFile'], data)
-
-    if result != None:
-        return result
+    result = ''
+    error = False
+    args = ''
+    if report == 'report-request':
+        app_logger.info('report-request')
+        rep = formio.get_submission('report-request', keyvalue)
+        report_data = rep['data']['report']['data']
+        args = getArgs(rep)
+        if args == '':
+            error = True
+            result = 'Unable to generate report: Missing selections'
     else:
-        return 'Unable to create report'
+        app_logger.info(report)
+        rep = formio.get_submission('reports', report)
+        report_data = rep['data']
+
+    if not error:
+        data = []
+        for source in report_data['sourceSubmissions']:
+            sourceData = []
+            select = args
+            app_logger.info(source)
+            if 'selectionFields' in source:
+                select += f'&select={source["selectionFields"]})'
+            subs = formio.get_reference_submissions(source['app_form'], select)
+            sub = json.loads(subs)
+            if len(sub) == 0 or not 'data' in sub[0]:
+                error = True
+                result += f'Missing data for {source["app_form"]} {select}<br/>'
+            else:
+                for s in sub:
+                    sourceData.append(s['data'])
+                data.append(sourceData)
+
+        if not error:
+            result = jinja.render_report_template(report_data['templateFile'], data)
+
+        if result == None:
+            error = True
+            result = 'Unable to create report'
+    if error:
+        app_logger.warn(result)
+
+    return result
+
+def getArgs(rep):
+    result = ''
+    selections = rep['data']['selections']
+    for selection in selections:
+        if selection['filterType'] == 'exact':
+            result += f'&data.{selection["fieldId"]}={selection["exact"]}'
+        elif selection['filterType'] == 'list' and selection["listItem"]["value"] != '':
+            result += f'&data.{selection["fieldId"]}={selection["listItem"]["value"]}'
+        elif selection['filterType'] == 'regex':
+            result += f'&data.{selection["fieldId"]}__regex={selection["regEx"]}'
+    args = f'?limit=9999{result}'
+    return args
 
 def build_layout(argument, data):
     result = 'ok'

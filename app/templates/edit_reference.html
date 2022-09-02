@@ -14,7 +14,7 @@
         Formio.createForm(document.getElementById('formio'), '{{ops_portal_url}}/app/formio/reference/{{path}}/submission/{{keyvalue}}');
       };
     </script>
-      <title>Tools - Update Reference</title>
+      <title>{{keyvalue}} - {{desc}}</title>
   </head>
   <body>
     <nav class="navbar navbar-top navbar-expand navbar-dark bg-primary border-bottom d-flex justify-content-between p-3">
@@ -30,5 +30,16 @@
     <div class="container" style="margin: 10px;">
       <div id='formio'></div>
   </div>
+  <script>
+    async function submit_and_reload(form, target) {
+      await form.submit();
+      if (target === "self") {
+        location.reload();
+      } else {
+        location.href="/app/edit/reference/report-request/" + target;
+      }
+
+    }
+  </script>
   </body>
 </html>
