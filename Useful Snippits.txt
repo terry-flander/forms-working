@@ -23,3 +23,33 @@ Item Template
 
 Refresh On
 Country
+
+Report  Requests -- Setup
+if (data.lastReport === '' && data.report !== {}) {
+    let selects = data.report.data.selectionFields;
+    let selections = [];
+    for (let select of selects) {
+        selections.push({
+            "label":  select.label,
+            "filterType": select.filterType,
+            "listItems": getList(select.filterList),
+            "fieldId": select.fieldId
+        });
+
+    }
+    data.selections = selections;
+    data.lastReport = data.report;
+    submit_and_reload(form, data.id);
+
+}
+
+function getList(list) {
+    let result = [];
+    for (let l of list) {
+        result.push({
+            "label": l.listName,
+            "value": l.listValue
+        });
+    }
+    return result;
+}

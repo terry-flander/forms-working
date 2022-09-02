@@ -304,23 +304,31 @@ def copy_reference():
       new_submission = update_copy(from_submission, keyfield, new_id)
       token = get_session_value('token')
       new_reference = formio.update_submission(new_submission, path, keyfield, new_id, token)
-      if new_id in new_reference['data'].values():
+      if new_id in new_reference[1]['data'].values():
         app_logger.info('Copy successful')
         return "Copy Successful"
       else:
         app_logger.warn(new_reference)
-        return new_reference
+        return new_reference[0]
     except Exception as ex:
       app_logger.error(ex)
       return "Error: Check Log"
 
   elif action == 'delete':
     # Check that exists to delete
-    if formio.get_submission_id(path, keyfield, id) == 'new':
+    submission_id = formio.get_submission_id(path, keyfield, id)
+    app_logger.info(submission_id)
+    if submission_id == 'new':
+      app_logger.info(f'Reference {id} does not exist')
       return f'Reference {id} does not exist'
     else:
-      resp = formio.delete_submission(path, keyfield, id)
-      return resp
+      try:
+        resp = formio.delete_submission(path, id)
+        app_logger.info(f'Reference {id}: {resp}')
+        return resp
+      except Exception as ex:
+        app_logger.error(ex)
+        return ex
       
   else:
     return 'Unrecognised Action'
@@ -490,17 +498,20 @@ def formio_update_reference_submission(path, keyvalue):
 
   token = get_session_value('token')
   try:
-    result = formio.update_submission(request.json, path, keyvalue, token)
+    update_result = formio.update_submission(request.json, path, keyvalue, token)
   except Exception as ex:
     app_logger.err(f'{ex}')
   
-  if result != None:
+  if update_result[0] != 'ok':
+    return update_result[1], 400
+
+  if update_result[0] == 'ok':
     r = wh.do_webhooks(request.json, path, token)
     if r != 'ok':
       app_logger.info(r)
       return r, 400
-      
-  return result
+
+  return update_result[1]
 
 @app.route('/action/layout/<path>', methods=['POST'])
 def action_get_layout(path):

@@ -1,0 +1,28 @@
+<html>
+<head>
+    <title>Asset List</title>
+    <link rel="stylesheet" href="/app/static/menu.css">
+</head>
+<body>
+    {% set ns = namespace(x=0, y=0) %}
+    <h1>Assets</h1>
+    <table>
+        <thead>
+            <tr><th>Asset ID</th><th>Bridge Name</th><th>Status</th><th>Asset ID</th><th>Feature Crossed</th>
+            <th>Road Name</th></tr>
+        </thead>
+        <tbody>
+    {% for row in allData[0] %}
+        <tr>
+        <td>{{row.eloque_id}}</td>
+        <td>{{row.bridge_name}}</td>
+        <td>{{row.design_status}}</td>
+        <td>{{row.asset_id}}</td>
+        <td>{{row.feature_crossed}}</td>
+        <td>{{row.road_name}}</td>
+        </tr>
+    {% endfor %} 
+        </tbody>
+    </table>
+</body>
+</html>

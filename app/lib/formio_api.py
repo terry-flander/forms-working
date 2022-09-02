@@ -220,16 +220,23 @@ def check_reference(data, keyfield, new_id):
         return None
 
 def delete_submission(path, keyvalue):
-    index_field = get_form_keyfield(path)
-    token = get_formio_login()
-    submission_id = get_submission_id(path, index_field, keyvalue)
-    if submission_id != 'new':
-        debug_logger.debug(f'{path}, {keyvalue}')
-        url = f'http://{FORMIO_URL}/{path}/submission/{submission_id}'
-        r = requests.delete(url, headers={"x-jwt-token": token})
-        return "Delete successful"
-    else:
-        return "Submission not found"
+    result = ''
+    try:
+        index_field = get_form_keyfield(path)
+        token = get_formio_login()
+        submission_id = get_submission_id(path, index_field, keyvalue)
+        if submission_id != 'new':
+            debug_logger.debug(f'{path}, {keyvalue}')
+            url = f'http://{FORMIO_URL}/{path}/submission/{submission_id}'
+            r = requests.delete(url, headers={"x-jwt-token": token})
+            result = "Delete successful"
+        else:
+            result = "Submission not found"
+    except Exception as ex:
+        result = f'Error: {ex}'
+
+    app_logger.info(result)
+    return result
 
 # Validate submission before add/update
 def validate_submission(data, path):
@@ -277,7 +284,7 @@ def get_submission(path, keyvalue):
         return ''
 
 def get_submission_id(path, index_field, keyvalue):
-    debug_logger.debug(f'{path} {index_field} {keyvalue}')
+    debug_logger.debug(f'{path} {index_field} "{keyvalue}"')
     token = get_formio_login()
     url = f'http://{FORMIO_URL}/{path}/exists?data.{index_field}={keyvalue}'
     this_id = 'new'
