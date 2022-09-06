@@ -8,6 +8,7 @@
     <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'>
     <link rel='stylesheet' href='https://cdn.form.io/formiojs/formio.full.min.css'>
     <link rel="stylesheet" href="/app/static/menu.css">
+    <script type="text/javascript" charset="utf8" src="/app/static/jquery-3.6.0.min.js"></script>
     <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
     <script type='text/javascript'>
      window.onload = function() {
@@ -32,9 +33,13 @@
   </div>
   <script>
     async function submit_and_reload(form, target) {
+      $("body").css("cursor", "progress");
       await form.submit();
+      $("body").css("cursor", "default");
       if (target === "self") {
         location.reload();
+      } else if (target === "close") {
+        window.close();
       } else {
         location.href="/app/edit/reference/report-request/" + target;
       }

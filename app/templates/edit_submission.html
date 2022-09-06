@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/app/static/menu.css">
 
     <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+    <script type="text/javascript" charset="utf8" src="/app/static/jquery-3.6.0.min.js"></script>
     <script type='text/javascript'>
      window.onload = function() {
         Formio.createForm(document.getElementById('formio'), '{{ops_portal_url}}/app/formio/{{path}}/submission/{{keyvalue}}');
@@ -31,5 +32,17 @@
     <div class="container" style="margin: 10px;">
       <div id='formio'></div>
   </div>
-  </body>
+
+  <script>
+    async function submit_and_reload(form, target) {
+      await form.submit();
+      if (target === "reload") {
+        location.reload();
+      } else if (target === 'close') {
+        window.close();
+      }
+
+    }
+  </script>
+</body>
 </html>
