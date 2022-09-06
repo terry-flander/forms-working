@@ -1,20 +1,22 @@
 #!/bin/bash
-# clone the app forms and submissiong
-
-env=${1:-"local"}x
+# Backup app forms and submissions - full or incremental
+env=${1:-"local"}
 echo $env
 . config/env/$env.env
 
+echo "Pull Forms and Submissions from Source system"
+echo "** and save to backup directory **"
 
-echo "\nPull all Forms and Submissions from Source system"
-echo "** and save as backup/backup_<YYYYmmdd_HHMM> **\n"
-read -p "Do you want to proceed? (yes/no) " yn
-
-case $yn in 
-	yes ) echo ok, we will proceed;;
-	no ) echo exiting...;
-		exit;;
-	* ) echo invalid response;
-		exit 1;;
-esac
-python3 ./app/lib/backup_data.py
+options=( "full", "incremental" )
+PS3='Select backup type or 0 to exit: '
+select mode in "${options[@]}"; do
+    if [[ $REPLY == "0" ]]; then
+        echo 'Bye!' >&2
+        exit
+    elif [[ -z $mode ]]; then
+        echo 'Invalid choice, try again' >&2
+    else
+        break
+    fi
+done
+python3 ./app/lib/backup_data.py $mode
