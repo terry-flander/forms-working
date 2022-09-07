@@ -8,6 +8,7 @@ import sys
 import os
 import json
 from os import walk
+import traceback
 
 import app.lib.formio_api as formio
 import app.lib.jinja_api as jinja
@@ -31,8 +32,8 @@ def do_promote(data):
         else:
             return 'Promote Type not recognised'
 
-    except Exception as ex:
-        app_logger.error(ex)
+    except Exception:
+        app_logger.error(traceback.format_exc())
 
     finally:
         return "ok"
@@ -56,10 +57,10 @@ def get_args(data):
         from_form = get_form(path, from_data, from_token)
         to_form = get_form(path, to_data, to_token)
 
-        from_id = from_form['_id']
+        from_id = get_val(from_form, '_id')
         to_id = None
         if to_form != None:
-            to_id = to_form['_id']
+            to_id = get_val(to_form, '_id')
 
         args = { \
                 "path": path,
@@ -80,8 +81,8 @@ def get_args(data):
             }
         return args
 
-    except Exception as ex:
-        app_logger.error(ex)
+    except Exception:
+        app_logger.error(traceback.format_exc())
         return "{}"
 
 def promote_form(data, args):
@@ -177,8 +178,11 @@ def data_changes(index_field, key_value, data):
     return data
     
 def get_hosts_data(host):
-    req = formio.get_submission('formio-hosts', host)
-    return req['data']
+    try:
+        req = formio.get_submission('formio-hosts', host)
+        return req['data']
+    except:
+        return {}
 
 def increment_version(_ver, part):
     result = ''
@@ -226,13 +230,16 @@ def get_token(req):
 
 # Get Form by Form Path
 def get_form(path, host, token):
-
+    r = {}
     # Use form path to determine field to match
     try:
         url = get_ip(host) + path
         debug_logger.debug(f'{url}')
         r = requests.get(url, headers={"x-jwt-token": token})
-        return r.json()
+        if r.status_code == 200:
+            return r.json()
+        else:
+            return None
     except Exception as ex:
         app_logger.error(ex)
         return None
@@ -248,7 +255,10 @@ def update_form(path, host, token, data, id):
         else:
             debug_logger.debug(f'UPDATE {path} on {str(get_val(host, "id"))}')
             r = requests.put(get_ip(host) + path, json=data, headers={"x-jwt-token": token})
-        return r.json()
+        if r.status_code > 201:
+            return r.json()
+        else:
+            return 'OK'
     except Exception as ex:
         app_logger.error(ex)
         return None
