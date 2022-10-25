@@ -98,27 +98,25 @@ from https://github.com/formio/formio/archive/refs/heads/master.zip
    ```
    git clone https://github.com/terry-flander/forms-working.git
    ```
-5. Install Python Libraries
+5. Install Virtual Environment and Python Libraries
    ```
-   mkdir env
-   pip3 install -t env -r requirements.txt
+   python3 -m pip install --user virtualenv
+   python3 -m venv env
+   source env/bin/activate --system-site-packages
+   pip3 install -r requirements.txt
    ```
-6. (PRODUCTION ONLY) Install the forms-working configuration files into formio-master
-   ```
-   cp forms-working/config/* formio-master
-   ```
-7. Install node libraries required
+6. Install node libraries required
    ```
    npm install
    ```
-8. Start forms-working
+7. Start forms-working
    ```
    mkdir tmp
-   ./start
+   ./start [ production | staging | test ]
    ```
 Note that the ``start`` script executes the following command which can be used to stop or restart just the Flask webserver with ``./server stop`` and  ``./server restart production`` respectively.
 
-NB: The ``production`` argument above is used by the configuration to use the correct configuration. Leaving this blank results in ``development`` configuration will only work locally, i.e. not in the EC2 instance.
+NB: The ``production`` argument above is used by the configuration to use the correct configuration. Leaving this blank results in ``local`` configuration will only work locally, i.e. not in the EC2 instance.
 
 The server log file is ``tmp/webserver.log`` and the application log files is ``tmp/app_info.log``
 
@@ -128,16 +126,12 @@ The application can be installed on a local host much more easily as there is no
 
 1. Install Docker for your OS
 2. Install NodeJS and npm for your OS - lots of help on-line
-3. Follow the FORM.IO INSTALLATION instructions above
-
-EXCEPT #6 -- DO NOT COPY ANYTHING INTO THE formio-master directory
-AND    #8 -- Database must be loaded  before starting server
-
+3. Follow the FORM.IO INSTALLATION instructions above but do not start Application
 4. Load app forms and data from Production repo with ``./clone_app``
-5. Start the application with ``./server`` or ``./server start development``
+5. Start the application with ``./start``
 
-A webserver is running at ``http://localhost:8000/app``
-Formio is running at ``http://localhost:3001``
+The Application is running at ``http://localhost:8000/app``
+Formio is running at ``http://localhost:3001`` and ``http://localhost:8000``
 
 UNIT TESTING
 

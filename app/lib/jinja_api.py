@@ -31,10 +31,13 @@ def render_template(template, data):
         app_logger.error(f'{templateFile} {ex}')
         return None
 
-def render_report_template(templateFile, data):
+def render_report_template(templateFile, data, doc_template):
     debug_logger.debug(f'template: {templateFile}')
     try:
-        template = env.get_template(templateFile + ('' if templateFile.endswith('.jinja') else '.jinja'))
+        if doc_template != '':
+            template = Environment(loader=BaseLoader()).from_string(doc_template)
+        else:
+            template = env.get_template(templateFile + ('' if templateFile.endswith('.jinja') else '.jinja'))
         return template.render(allData=data)
     except TemplateSyntaxError as ex:
         app_logger.warning(f'{ex.message} line {ex.lineno} name {ex.name} filename: {ex.filename}')

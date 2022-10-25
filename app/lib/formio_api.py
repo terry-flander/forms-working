@@ -411,7 +411,7 @@ def get_submissions_paged(path, start, page_length, fields='', formats='', sorts
             for c in range(0, len(field_list)):
                 if c > 0:
                     data_values += ','
-                data_value = f'"{field_list[c]}" : "{get_value(l, field_list[c], format_list[c])}"'
+                data_value = f'"{field_list[c].replace(".","_")}" : "{get_value(l, field_list[c], format_list[c])}"'
                 data_values += data_value
             load = "{" + data_values + "}"
             result.append(json.loads(load))
@@ -439,7 +439,7 @@ def get_paged_count(path):
 def get_value(data, field, format):
     result = ''
     try:
-        result = data['data'][field]
+        result = get_v(data['data'], field)
         if field == 'promoteDateTime':
             result = result[0:19].replace('T',' ')
         elif field in ['logComment', 'logFirstChange']:
@@ -448,6 +448,15 @@ def get_value(data, field, format):
             result = result.split("\n")[0]
     except:
         result = ''
+    return result
+
+def get_v(data, field):
+    result = ''
+    d = data
+    for f in field.split('.'):
+        app_logger.info(f'field {f} data {d} result {result}')
+        result = d[f]
+        d = result
     return result
 
 def remove_control_characters(s):
