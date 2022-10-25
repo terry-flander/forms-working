@@ -1,5 +1,5 @@
 # Start whole environment based on location -- will also run server
-env=${1:-"local"}x
+env=${1:-"local"}
 
 echo $env
 

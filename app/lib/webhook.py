@@ -358,7 +358,17 @@ def build_report(report, keyvalue):
                 data.append(sourceData)
 
         if not error:
-            result = jinja.render_report_template(report_data['templateFile'], data)
+            templateName = report_data['templateFile']
+            # Check for template in 'documents' -- otherwise assumed to be in 'templates/jinja'
+            document = formio.get_submission('documents', templateName)
+            if document:
+                doc_template = document['data']['template_editor']
+                app_logger.info(f'document: {doc_template}')
+            else:
+                doc_template = ''
+                app_logger.info(f'template/jinja/{templateName}.jinja')
+
+            result = jinja.render_report_template(templateName, data, doc_template)
 
         if result == None:
             error = True

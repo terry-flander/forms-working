@@ -17,9 +17,15 @@ fi
 
 if [ "$action" == "start" ] || [ "$action" == "restart" ]
 then
-    rm -f tmp/session/admin/token.txt
-    rm -f tmp/*.log
+    DIR="tmp"
+    if [ -d "$DIR" ]; then
+        rm -f tmp/session/admin/token.txt
+        rm -f tmp/*.log
+    else
+        mkdir $DIR
+    fi    
     echo "Starting webserver..."
+    source env/bin/activate --system-site-packages
     export FLASK_ENV=$env
     . config/env/$env.env
     echo "Localhost $LOCALHOST"

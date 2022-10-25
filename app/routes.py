@@ -7,12 +7,10 @@ from flask import Flask, render_template, request, session, send_file
 from flask import current_app as app
 from jinja2 import TemplateNotFound
 
-from werkzeug.exceptions import HTTPException
 import os
 
 import json
 import logging
-import sys
 import app.lib.webhook as wh
 import app.lib.formio_api as formio
 import app.lib.jinja_api as jinja
@@ -177,11 +175,12 @@ required arguments:
 '''
 @app.route('/view/<view_id>', methods=['GET'])
 def view(view_id):
+    view_id = view_id.lower()
     if get_session_logged_in() == None:
         return home()
     
     if not get_view_access(view_id):
-        return 'Access to view not allowed'
+        return f'Access to view {view_id} not allowed'
 
     data = formio.get_view_layout(view_id)
 
@@ -501,7 +500,7 @@ def formio_update_reference_submission(path, keyvalue):
     update_result = formio.update_submission(request.json, path, keyvalue, token)
   except Exception as ex:
     app_logger.err(f'{ex}')
-  
+
   if update_result[0] != 'ok':
     return update_result[1], 400
 
