@@ -35,4 +35,6 @@ case $yn in
 	* ) echo invalid response;
 		exit 1;;
 esac
+
+source env/bin/activate --system-site-packages
 python3 ./app/lib/restore_data.py $file

@@ -1,14 +1,3 @@
-'''
-Calculate layout of Sensors based on Structure, sensor type, and dimenstions of component
-'''
-import logging
-import sys
-import os
-
-from app.lib.util import setup_logger
-debug_logger = setup_logger('debug', 'tmp/app_info.log', logging.DEBUG)
-app_logger = setup_logger('info', 'tmp/app_info.log', logging.INFO)
-
 """
  NEW VERSION OF ROUTINE FOR NEW DIS LAYOUT ->
     for each FIBER

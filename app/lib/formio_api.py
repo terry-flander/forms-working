@@ -3,12 +3,10 @@ from distutils.log import debug
 import logging
 import json
 import requests
-import sys
 import os
 import html
 import unicodedata
 
-from pathlib import Path
 from pathlib import Path
 import subprocess
 from subprocess import check_output
@@ -104,7 +102,7 @@ def get_formio_login():
             r = requests.post(url, json=payload)
             token = r.headers['x-jwt-token']
         except Exception as ex:
-            app_logger.error({ex})
+            app_logger.error(ex)
     return token
 
 def update_submission(data, path, keyvalue, user_token, company_access=None):
@@ -661,13 +659,13 @@ def load_change_log(path, id):
             )
     return found
 
-def getLogValue(l, fieldName, default):
+def getLogValue(l, fieldName, dflt):
     result = ''
     firstChange = ''
     try:
         result = l['data'][fieldName]
     except Exception:
-        result = default
+        result = dflt
 
     if fieldName == 'logDateTime':
         result = result[0:19].replace('T',' ')
@@ -745,7 +743,7 @@ def log_promote(data):
     finally:
         return result
 
-def getValue(l, fieldName, default):
+def getValue(l, fieldName, dflt):
     result = ''
     try:
         result = l['data'][fieldName]
@@ -754,7 +752,7 @@ def getValue(l, fieldName, default):
         elif result and fieldName == 'description':
             result = result.replace("\n", "<br/>").replace(" ", "&nbsp;")
     except Exception:
-        result = default
+        result = dflt
 
     return result
 

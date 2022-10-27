@@ -31,7 +31,8 @@ def home():
       path = user_profile['data']['defaultView']
       return view(path)
     else:
-      return renderWithMenus(request, "home/index.html", None)
+      return route_profile()
+      # return renderWithMenus(request, "home/index.html", None)
 
 @app.route('/profile.html')
 def route_profile():
@@ -179,10 +180,10 @@ def view(view_id):
     if get_session_logged_in() == None:
         return home()
     
-    if not get_view_access(view_id):
-        return f'Access to view {view_id} not allowed'
-
-    data = formio.get_view_layout(view_id)
+    if get_view_access(view_id):
+        data = formio.get_view_layout(view_id)
+    else:
+        data = {'data': {}}
 
     if data != None:
         return renderWithMenus(request, 'view.html', data['data'])
@@ -261,7 +262,8 @@ def edit_submission(path, keyvalue):
   else:
     desc = f["title"]
     ops_portal_url = os.environ.get('OPS_PORTAL_URL')
-    return render_template('edit_submission.html', path=path, keyvalue=keyvalue, desc=desc, ops_portal_url=ops_portal_url)
+    user_profile = formio.get_submission('user-profile',session['current_user'])
+    return render_template('edit_submission.html', path=path, keyvalue=keyvalue, desc=desc, ops_portal_url=ops_portal_url, user_profile=user_profile)
 
 @app.route('/edit/reference/<path>/<keyvalue>', methods=['GET'])
 def edit_reference(path, keyvalue):
@@ -274,7 +276,8 @@ def edit_reference(path, keyvalue):
   f = formio.get_form(path)
   desc = f["title"]
   ops_portal_url = os.environ.get('OPS_PORTAL_URL')
-  return render_template('edit_reference.html', path=path, keyvalue=keyvalue, desc=desc, ops_portal_url=ops_portal_url)
+  user_profile = formio.get_submission('user-profile',session['current_user'])
+  return render_template('edit_reference.html', path=path, keyvalue=keyvalue, desc=desc, ops_portal_url=ops_portal_url, user_profile=user_profile)
 
 @app.route('/action/submission', methods=['POST'])
 def copy_reference():

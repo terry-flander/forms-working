@@ -2,6 +2,8 @@
 
 . config/env/test.env
 
+source env/bin/activate --system-site-packages
+
 echo "Testing promote_api.py"
 python3 app/tests/test_promote_api.py
 echo "Testing formio_api.py"

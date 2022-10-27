@@ -25,7 +25,7 @@ def render_template(template, data):
         app_logger.warning(f'{ex.message} line {ex.lineno} name {ex.name} filename: {ex.filename}')
         return None
     except TemplateError as ex:
-        app_logger.warning({ex})
+        app_logger.warning(ex)
         return None
     except Exception as ex:
         app_logger.error(f'{templateFile} {ex}')
@@ -43,7 +43,7 @@ def render_report_template(templateFile, data, doc_template):
         app_logger.warning(f'{ex.message} line {ex.lineno} name {ex.name} filename: {ex.filename}')
         return None
     except TemplateError as ex:
-        app_logger.warning({ex})
+        app_logger.warning(ex)
         return None
     except Exception as ex:
         app_logger.error(ex)
