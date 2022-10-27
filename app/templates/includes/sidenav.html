@@ -1,38 +1,49 @@
 <div class="d-flex flex-column flex-shrink-0 p-3 bg-light overflow-auto" style="width:auto">
-  <a class="bd-toc-item">
+  <div class="bd-toc-item">
     DASHBOARDS
-  </a>
+  </div>
   <ul style="list-style-type: none; padding-left: 10px;">
       <li><a href="javascript:NewTab('/app','_admin')">
-        <i class="bi bi-speedometer2" style="font-size: 1rem; color: black"></i>&nbsp;Profile</a></li>
+        <i class="bi bi-speedometer2" style="font-size: 1rem; color: black"></i>&nbsp;Profile</a>
+      </li>
   </ul>
 
   {% for menu in sidenav.data.menuSection %}
-    <a class="bd-toc-item">
+    <div class="bd-toc-item" >
       {{menu.sectionName | upper}}
-    </a>
+    </div>
     
     <ul style="list-style-type: none; padding-left: 10px;">
     {% for item in menu.menuSectionItems %}
       {% if item.menuItemType == 'resource' and item.menuItemForm in form_access %}
-      <li><a href="javascript:NewTab('/app/tool/reference/{{item.menuItemForm}}','_admin')">
-        <i class="bi bi-card-list" style="font-size: 1rem; color: black"></i>&nbsp;{{item.menuItemLabel}}</a></li>
+      <li>
+        <i class="bi bi-card-list" style="font-size: 1rem; color: black"></i>
+        <a href="javascript:NewTab('/app/tool/reference/{{item.menuItemForm}}','_admin')">
+        {{item.menuItemLabel}}</a></li>
       {% endif %}
       {% if item.menuItemType == 'view' and item.menuItemView in view_access %}
-      <li><a href="javascript:NewTab('/app/view/{{item.menuItemView}}','_admin')">
-        <i class="bi bi-list-columns" style="font-size: 1rem; color: black"></i>&nbsp;{{item.menuItemLabel}}</a></li>
+      <li>
+        <i class="bi bi-list-columns" style="font-size: 1rem; color: black"></i>
+        <a href="javascript:NewTab('/app/view/{{item.menuItemView}}','_admin')">
+        {{item.menuItemLabel}}</a></li>
       {% endif %}
       {% if item.menuItemType == 'url' %}
-      <li><a href="javascript:NewWindow('{{item.menuItemUrl}}','_admin')">
-        <i class="bi bi-box-arrow-up-right" style="font-size: 1rem; color: black"></i>&nbsp;{{item.menuItemLabel}}</a></li>
+      <li>
+        <i class="bi bi-box-arrow-up-right" style="font-size: 1rem; color: black"></i>
+        <a href="javascript:NewWindow('{{item.menuItemUrl}}','_admin')">
+        {{item.menuItemLabel}}</a></li>
       {% endif %}
       {% if item.menuItemType == 'tool' %}
-      <li><a href="javascript:NewTab('/app/tool/{{item.menuItemTool}}','_admin')">
-        <i class="bi bi-card-list" style="font-size: 1rem; color: black"></i>&nbsp;{{item.menuItemLabel}}</a></li>
+      <li>
+        <i class="bi bi-card-list" style="font-size: 1rem; color: black"></i>
+        <a href="javascript:NewTab('/app/tool/{{item.menuItemTool}}','_admin')">
+        {{item.menuItemLabel}}</a></li>
       {% endif %}
       {% if item.menuItemType == 'edit' and item.menuItemForm in form_access %}
-      <li><a href="javascript:NewWindow('/app/edit/reference/{{item.menuItemForm}}/{{item.menuItemTool}}','_admin')">
-        <i class="bi bi-layout-text-sidebar-reverse" style="font-size: 1rem; color: black"></i>&nbsp;{{item.menuItemLabel}}</a></li>
+      <li>
+        <i class="bi bi-layout-text-sidebar-reverse" style="font-size: 1rem; color: black"></i>
+        <a href="javascript:NewWindow('/app/edit/reference/{{item.menuItemForm}}/{{item.menuItemTool}}','_admin')">
+        {{item.menuItemLabel}}</a></li>
       {% endif %}
     {% endfor %}
     </ul>

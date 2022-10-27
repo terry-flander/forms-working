@@ -5,9 +5,8 @@
     <!-- Favicon - loaded as static -->
     <link rel="icon" href="/app/static/favicon.ico" type="image/ico">
 
-    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='/app/static/bootswatch-css/{% if user_profile %}{{user_profile.data.theme}}{% else %}default{% endif%}-bootstrap.min.css'>
     <link rel='stylesheet' href='https://cdn.form.io/formiojs/formio.full.min.css'>
-    <link rel="stylesheet" href="/app/static/menu.css">
     <script type="text/javascript" charset="utf8" src="/app/static/jquery-3.6.0.min.js"></script>
     <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
     <script type='text/javascript'>

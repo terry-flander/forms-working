@@ -41,7 +41,7 @@ def get_token(host, admin_user, admin_password):
         r = requests.post(url, json=payload)
         token = r.headers['x-jwt-token']
     except Exception as ex:
-        print({ex})
+        print(ex)
     return token
 
 def update_submission(host, token, data):

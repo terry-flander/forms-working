@@ -1,11 +1,8 @@
 ''' Routines to promote forms between hosts '''
 import logging
 from operator import index
-import os
 from jinja2 import Undefined
 import requests
-import sys
-import os
 import json
 from os import walk
 import traceback
@@ -225,7 +222,7 @@ def get_token(req):
         r = requests.post(url, json=payload)
         token = r.headers['x-jwt-token']
     except Exception as ex:
-        app_logger.error({ex})
+        app_logger.error(ex)
     return token
 
 # Get Form by Form Path
