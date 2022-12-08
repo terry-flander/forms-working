@@ -12,6 +12,10 @@ import subprocess
 from subprocess import check_output
 from datetime import datetime
 
+from cachetools import TTLCache
+
+cache = TTLCache(maxsize=10, ttl=360)
+
 from app.lib.util import setup_logger, build_error
 debug_logger = setup_logger('debug', 'tmp/app_info.log', logging.DEBUG)
 app_logger = setup_logger('info', 'tmp/app_info.log', logging.INFO)
@@ -28,6 +32,7 @@ def get_new_login(userName, password):
   url = f'http://{FORMIO_URL}/user/login'
   payload = {'data': {'email': userName,'password': password}}
   r = requests.post(url, json=payload)
+  app_logger.info(f'{url} {payload}')
   try:
     token = r.headers['x-jwt-token']
     data = get_submission('user',userName)
@@ -40,7 +45,7 @@ def get_new_login(userName, password):
     app_logger.info(f'User: {userName} - Login Successful')
     return token, groups, access_object
   except Exception as ex:
-    app_logger.warn(f'{userName} - Invalid Login Attempt {ex}')
+    app_logger.warn(f'{userName} - Invalid Login Attempt {ex} {r}')
     return None
 
 def build_access_object(data):
@@ -93,17 +98,25 @@ def get_access_list(access_object=None, type='form', mode='read'):
     return result
 
 def get_formio_login():
-    token = None
-    if token == None:
+    admin_token = get_cache_value('admin_token')
+    if admin_token == None:
         url = f'http://{FORMIO_URL}/user/login'
         payload = {'data': {'email': ADMIN_USER, 'password': ADMIN_PASSWORD}}
-        token = ''
         try:
             r = requests.post(url, json=payload)
-            token = r.headers['x-jwt-token']
+            admin_token = r.headers['x-jwt-token']
+            cache['admin_token'] = admin_token
         except Exception as ex:
             app_logger.error(ex)
-    return token
+    return admin_token
+
+def get_cache_value(key):
+    value = None
+    try:
+        value = cache[key]
+    except:
+        value = None
+    return value
 
 def update_submission(data, path, keyvalue, user_token, company_access=None):
     if company_access != None and not check_company(data, company_access):
@@ -452,7 +465,6 @@ def get_v(data, field):
     result = ''
     d = data
     for f in field.split('.'):
-        app_logger.info(f'field {f} data {d} result {result}')
         result = d[f]
         d = result
     return result
