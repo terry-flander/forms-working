@@ -167,28 +167,55 @@ def tool_reference(refid):
         return f'No form exists for {refid}'
 
 '''
-View setup and submissions request for datatable support
+View setup and submissions request for datatable support with parameter
 
 required arguments:
   path -- View ID from Resource
-  page -- page number to return starting with 1
-  page_length -- number of submissions to return
+  parameter -- extra selection parameter
 '''
-@app.route('/view/<view_id>', methods=['GET'])
-def view(view_id):
-    view_id = view_id.lower()
+@app.route('/view_id/<path>/<param>', methods=['GET'])
+def view_id(path, param):
+    debug_logger.info(f'{path} {param}')
+    path = path.lower()
     if get_session_logged_in() == None:
         return home()
     
-    if get_view_access(view_id):
-        data = formio.get_view_layout(view_id)
+    if get_view_access(path):
+        data = formio.get_view_layout(path)
+        session['id_search'] = param
+        data['data']['title'] += (' for ' + param)
     else:
         data = {'data': {}}
 
     if data != None:
         return renderWithMenus(request, 'view.html', data['data'])
     else:
-        return f'No view exists for {view_id}'
+        return f'No view exists for {path}'
+
+
+'''
+View setup and submissions request for datatable support
+
+required arguments:
+  path -- View ID from Resource
+'''
+@app.route('/view/<path>', methods=['GET'])
+def view(path):
+    path = path.lower()
+    session['id_search'] = ''
+
+    if get_session_logged_in() == None:
+        return home()
+    
+    if get_view_access(path):
+        data = formio.get_view_layout(path)
+    else:
+        data = {'data': {}}
+
+    if data != None:
+        return renderWithMenus(request, 'view.html', data['data'])
+    else:
+        return f'No view exists for {path}'
 
 def renderWithMenus(request, form, data):
     ops_portal_url = os.environ.get('OPS_PORTAL_URL')
@@ -226,14 +253,18 @@ def submissions_paged():
       draw = request.args.get('draw')
       start = request.args.get('start')
 
-      app_logger.info(f'paging: {path} {page_length} {start}')
+      id = session['id_search']
+      if id != '':
+        id+= '&'
+
+      debug_logger.debug(f'paging: {path} {id} {page_length} {start}')
       if not get_form_access(path):
           return 'Access to form not allowed'
 
       f = formio.get_form(path)
       if f != None:
-          rows = formio.get_submissions_paged(path, start, page_length, fields, formats, sorts, session['access_object'])
-          records = formio.get_paged_count(path)
+          rows = formio.get_submissions_paged(path, id, start, page_length, fields, formats, sorts, session['access_object'])
+          records = formio.get_paged_count(path, id)
           return json.dumps({
               "draw": draw,
               "recordsTotal": records,
@@ -403,14 +434,6 @@ def app_log(log_type):
       app_logger.info(fileName)
       log = jinja.load_file(fileName, False).splitlines()
       return render_template('app_log_content.html', log=reversed(log))
-  
-@app.route('/log/<path>/<keyvalue>', methods=['GET'])
-def change_log(path, keyvalue):
-    if get_session_logged_in() == None:
-      return home()
-
-    jsonData = formio.load_change_log(path, keyvalue)
-    return render_template('change_log.html', data=jsonData, keyvalue=keyvalue)
 
 @app.route('/promote_log', methods=['GET'])
 def promote_log():

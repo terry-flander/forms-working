@@ -1,6 +1,6 @@
 Forms Working
 ===============================
-The Forms Working Development Environment provides a unified platform which enables the form.io Forms Designer with a complete Python Flask based website and provides:
+The Forms Working Development Environment provides a unified platform which enables the **form.io** Forms Designer with a complete Python Flask based website and provides:
 
 - Separate Forms and Data Tenency for multiple applications and data
 - User defined Views of application data
@@ -15,7 +15,7 @@ A single AWS EC2 instance can support the application, however if the DB needs t
 Forms Working uses Docker to support instances of:
 - nginx -- secure front-end webserver
 - form.io -- API
-- MongoDB -- if installed in the same EC2 instancfe
+- MongoDB -- if installed in the same EC2 instance
 
 INSTALLATION INSTRUCTIONS
 
@@ -78,7 +78,7 @@ Check install with
    npm -v
    ```
 
-FORM.IO INSTALLATION
+**FORM.IO** INSTALLATION
 
 from https://github.com/formio/formio/archive/refs/heads/master.zip
 
@@ -93,7 +93,7 @@ from https://github.com/formio/formio/archive/refs/heads/master.zip
 3. Install git for pulling forms-working repo
    ```
    sudo yum install git
-   ```
+   ``` 
 4. Git clone forms-working repo
    ```
    git clone https://github.com/terry-flander/forms-working.git
@@ -142,3 +142,34 @@ A suite of testing programs exists using the Python unittest library. All script
 
 NB: Functional tests are not yet included as they must take into count the Flask server framework.
 
+BACKUP AND RESTORE DATA
+
+Scripts are provided which will backup all the data from your connected database which can then be loaded either into an existing data base (restore to previous state), or a new data base (new installation).
+
+Both backup and restore use the **form.io** APIs to access the data so the selected environmnet must include valid connection paramerters to the source data base and that the data base is running and accessible.
+
+BACKUP
+
+To start the backup process execute ``backup_app [ <env> ]`` from the root directory. The optional ``<env>`` parameter will select the source data base. Default is ``local``. Optionally use any of the configurations defined in ``config/env``.
+
+You will be promoted to select either ``full`` or ``incrental`` backup.
+
+- ``full`` -- Export all submissions from all forms and resoruces.
+- ``incremental`` -- Export only those submissions which have been changed since the last ``full`` backup. 
+
+ Backup will export either all or changed submissions (records) from each form and resource (table), each into its own named folder with one JSON file for each submission. The resulting directory structure will be zipped into a single file with the name including the type and date of the backup, E.g.:
+
+ - ``backups/full_20220906_1018.zip``
+ - ``backups/incremental_20220906_1103.zip``
+
+The date and time of the backup is stored in the separate control file ``backups/version.conf``. If this file does not exist then it is assumed that the backup will be a ``full`` backup.
+
+RESTORE
+
+To start the restore process execute ``restore_app [ <env> ]`` from the root directory. The optional ``<env>`` parameter will select the target data base. Default is ``local``. Optionally use any of the configurations defined in ``config/env``.
+
+You will be presented with a list of all the zip files in ``backups/*``. Select the number corresponding to the backup file to be restored.
+
+**IMPORTANT NOTE**
+
+Passwords on user accounts are not part of the backup and cannot be restored. Since all users must have a password, all are set to 'CHANGEME'. Once logged in the user can change their password using the menu option to initiate the change.

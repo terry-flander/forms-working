@@ -14,6 +14,8 @@ from datetime import datetime
 
 from cachetools import TTLCache
 
+from jsondiff import diff
+
 cache = TTLCache(maxsize=10, ttl=360)
 
 from app.lib.util import setup_logger, build_error
@@ -34,7 +36,8 @@ def get_new_login(userName, password):
   r = requests.post(url, json=payload)
   app_logger.info(f'{url} {payload}')
   try:
-    token = r.headers['x-jwt-token']
+    token = r.headers['x-jwt-token']    
+    app_logger.info(token)
     data = get_submission('user',userName)
     groups = ''
     access_object = ''
@@ -388,7 +391,7 @@ def get_menu_layout(menu_id):
     return result
 
 # Get Submissions for form with paging
-def get_submissions_paged(path, start, page_length, fields='', formats='', sorts='', access_object=None):
+def get_submissions_paged(path,id, start, page_length, fields='', formats='', sorts='', access_object=None):
     token = get_formio_login()
     result = []
     company_access = get_access_list(access_object, 'company', 'read')
@@ -414,8 +417,8 @@ def get_submissions_paged(path, start, page_length, fields='', formats='', sorts
             sort_fields += 'data.' + field_list[c]
 
     try:
-        url = f'http://{FORMIO_URL}/{path}/submission?select={data_fields}&skip={skip}&limit={page_length}&sort={sort_fields}'
-        debug_logger.debug(f'skip {skip} limit {page_length} fields: {field_list} formats: {format_list}')
+        url = f'http://{FORMIO_URL}/{path}/submission?{id}select={data_fields}&skip={skip}&limit={page_length}&sort={sort_fields}'
+        debug_logger.debug(f'utl {url}')
         r = requests.get(url, headers={"x-jwt-token": token})
         for l in r.json():
             data_values = ''
@@ -432,11 +435,11 @@ def get_submissions_paged(path, start, page_length, fields='', formats='', sorts
     return result
 
 # Count Submissions for form with paging
-def get_paged_count(path):
+def get_paged_count(path, id):
     token = get_formio_login()
     result = 0
     try:
-        url = f'http://{FORMIO_URL}/{path}/submission?select=_id&limit=9999'
+        url = f'http://{FORMIO_URL}/{path}/submission?{id}select=_id&limit=9999'
         r = requests.get(url, headers={"x-jwt-token": token})
         for l in r.json():
             result += 1
@@ -454,11 +457,19 @@ def get_value(data, field, format):
         if field == 'promoteDateTime':
             result = result[0:19].replace('T',' ')
         elif field in ['logComment', 'logFirstChange']:
-            result = html.escape(remove_control_characters(result)).replace('\\&', "&")
+            result = formatForPopup(result)
         elif field in ['description']:
             result = result.split("\n")[0]
-    except:
+    except Exception as ex:
+        app_logger.error(f'Could not convert: {result}')
         result = ''
+    return result
+
+def formatForPopup(result):
+    tableHtml = '<style>td.border {border-style:solid;}</style><table><tr><td class=border>'
+    result = ' '.join(result.split()).replace('"',"'").replace("\\'", "'")
+    result = result.replace(' | ','</td><td class=border>').replace('<<br>','</td><td class=border></td></tr><tr><td class=border>').replace('<br> >','</td></tr><tr><td class=border>').replace('<br>','</td></tr><tr><td class=border>')
+    result = f'{tableHtml}{result}</td></tr></table>'
     return result
 
 def get_v(data, field):
@@ -614,25 +625,15 @@ def logEvent(bi, res, path, action, comment, token):
         return None
 
 def get_changes(bi, ai):
-    diff = ''
+    ldiff = ''
     
-    Path(f'./tmp').mkdir(parents=True, exist_ok=True)
     try:
-        if bi != None:
-            t = open('./tmp/bi.json', 'w')
-            t.write(json.dumps(bi['data'], indent=4))
-            t.close()
-            t = open('./tmp/ai.json', 'w')
-            t.write(json.dumps(ai['data'], indent=4))
-            t.close()
-            diff = get_diff()
-        else:
-            debug_logger.debug(f'missing bi[data]')
+        ldiff = f'before: <br>{json.dumps(diff(ai, bi))}<br>after:<br>{json.dumps(diff(bi, ai))}'
             
     except Exception as ex:
         app_logger.error(ex)
     
-    return diff
+    return ldiff
 
 def get_diff():
     output = ""
@@ -647,57 +648,6 @@ def get_diff():
         app_logger.error(ex)
 
     return output    
-
-def load_change_log(path, id):
-    debug_logger.debug(f'{path} {id}')
-    token = get_formio_login()
-    found = []
-    url = f'http://{FORMIO_URL}/{path}/submission?data.id={id}&limit=999&sort=-data.logDateTime'
-    r = requests.get(url, headers={"x-jwt-token": token})
-    for l in r.json():
-        if bool(l['data']):
-            found.append( 
-            {
-                "path": path, 
-                "id": id, 
-                "logFormVersion": getLogValue(l,'logFormVersion','')[0],
-                "form_name": getLogValue(l, 'form_name', '')[0],
-                "logDateTime": getLogValue(l, 'logDateTime', '')[0],
-                "logAction": getLogValue(l, 'logAction', '')[0],
-                "logComment": getLogValue(l, 'logComment', '')[0],
-                "logUser": getLogValue(l, 'logUser', '')[0],
-                "logFirstChange": getLogValue(l, 'logComment', '')[1]
-                }
-            )
-    return found
-
-def getLogValue(l, fieldName, dflt):
-    result = ''
-    firstChange = ''
-    try:
-        result = l['data'][fieldName]
-    except Exception:
-        result = dflt
-
-    if fieldName == 'logDateTime':
-        result = result[0:19].replace('T',' ')
-    elif fieldName == 'logComment':
-        newresult = ''
-        firstChange = ''
-        for l in result.split("<br"):
-            c = l.replace('>','').split('|')
-            newresult += '<tr><td>'
-            if len(c) == 2:
-              newresult += c[0].strip() + '</td><td>' + c[1].strip()
-              if firstChange == '':
-                  firstChange = c[1].strip()
-            else:
-              newresult += '</td><td>' + c[0].strip()
-              if firstChange == '':
-                  firstChange = c[0].strip()
-            newresult += '</td></tr>'
-        result = newresult
-    return result, firstChange
 
 def load_promote_log():
     token = get_formio_login()

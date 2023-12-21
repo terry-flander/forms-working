@@ -10,6 +10,7 @@ idna==3.3
 importlib-metadata==4.11.3
 iniconfig==1.1.1
 itsdangerous==2.1.2
+jsondiff==2.0.0
 Jinja2==3.1.2
 MarkupSafe==2.1.1
 numpy==1.21.6
