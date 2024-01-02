@@ -7,6 +7,8 @@ from flask import Flask, render_template, request, session, send_file
 from flask import current_app as app
 from jinja2 import TemplateNotFound
 
+import datetime as dt
+
 import os
 
 import json
@@ -115,6 +117,9 @@ def do_admin_login():
     session['access'] = login[1]
     session['access_object'] = login[2]
     session['logged_in'] = 'true'
+    now = dt.datetime.now(dt.timezone.utc)
+    session['last_active'] = now
+
   return home()
 
 @app.route('/logout')
@@ -579,9 +584,17 @@ def formio_get_reference_submissions(path):
   return result
 
 def get_session_logged_in():
+  debug_logger.debug('get_session_logged_id')
   if (not session.get('logged_in') or session.get('logged_in') == None) and not TESTING:
     return None
   else:
+    now = dt.datetime.now(dt.timezone.utc)
+    last_active = session.get('last_active')
+    delta = now - last_active
+    if delta.seconds > 1800:
+        return None
+
+    session['last_active'] = now
     return 'true'
 
 def get_form_access(path):

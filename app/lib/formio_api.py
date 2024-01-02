@@ -14,7 +14,8 @@ from datetime import datetime
 
 from cachetools import TTLCache
 
-from jsondiff import diff
+from deepdiff import DeepDiff
+
 
 cache = TTLCache(maxsize=10, ttl=360)
 
@@ -467,7 +468,7 @@ def get_value(data, field, format):
 
 def formatForPopup(result):
     tableHtml = '<style>td.border {border-style:solid;}</style><table><tr><td class=border>'
-    result = ' '.join(result.split()).replace('"',"'").replace("\\'", "'")
+    result = ' '.join(result.split()).replace('"',"'").replace("\\'", "'").replace(",","<br>")
     result = result.replace(' | ','</td><td class=border>').replace('<<br>','</td><td class=border></td></tr><tr><td class=border>').replace('<br> >','</td></tr><tr><td class=border>').replace('<br>','</td></tr><tr><td class=border>')
     result = f'{tableHtml}{result}</td></tr></table>'
     return result
@@ -628,26 +629,13 @@ def get_changes(bi, ai):
     ldiff = ''
     
     try:
-        ldiff = f'before: <br>{json.dumps(diff(ai, bi))}<br>after:<br>{json.dumps(diff(bi, ai))}'
+        debug_logger.debug(json.dumps(DeepDiff(bi, ai)))
+        ldiff = json.dumps(DeepDiff(bi, ai))
             
     except Exception as ex:
         app_logger.error(ex)
     
     return ldiff
-
-def get_diff():
-    output = ""
-    command="diff -yiwB --suppress-common-lines ./tmp/bi.json ./tmp/ai.json"
-    try:
-        debug_logger.debug(f'diff')
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-        (out, err) = proc.communicate()
-        encoding = 'utf-8'
-        output = out.decode(encoding).replace("\n","<br>").replace("\"", "'")
-    except Exception as ex:
-        app_logger.error(ex)
-
-    return output    
 
 def load_promote_log():
     token = get_formio_login()
