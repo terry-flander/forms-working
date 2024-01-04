@@ -241,13 +241,15 @@ def webhook_promote_form(req):
 def template_map_data(argument, ref, map_data):
     result = 'ok'
     mapped = {}
-    data = ref['data'] if map_data == None else map_data
+    render = {}
+    data = ref if map_data == None else map_data
     try:
-        mapped = json.loads(jinja.render_template(argument, data))
+        render = jinja.render_template(argument, data)
+        mapped = json.loads(render)
 
     except Exception as ex:
-        result = f'Unable to map data with: {argument}'
-        app_logger.error(f'{result} {ex}')
+        app_logger.error(f'Unable to map data. Argument: {argument} Error: {ex} ')
+        app_logger.error(render)
 
     return result, mapped
 
@@ -307,11 +309,12 @@ def load_layout(path, id):
     result = ''
 
     try:
-        jsonData = jinja.load_doc('layouts', path, id, 'json', True)
-        if jsonData == None:
-            jsonData = json.dumps(formio.get_submission(path, id))
+        # jsonData = jinja.load_doc('layouts', path, id, 'json', True)
 
+        jsonData = json.dumps(formio.get_submission(path, id))
+        
         data = json.loads(jsonData)
+        
         result = jinja.render_template(path + '-layout', data)
 
     except Exception as ex:

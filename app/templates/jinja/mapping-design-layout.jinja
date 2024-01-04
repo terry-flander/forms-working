@@ -121,118 +121,34 @@
         </tbody>
     </table>
 
-    <h1>Fibers/Sensors</h1>
+    <h1>Layout</h1>
     <table id="fibers" class="display">
         <thead>
             <tr>
-                <th>Fiber</th><th>Sensor</th><th>Span</th><th>Component</th><th>x</th><th>y</th>
-                <th>Sensor Type</th><th>Angle</th><th>Side</th><th>Top</th><th>Left</th><th>Spacing</th><th>Right</th><th>Note</th>
+                <th>Fiber</th><th>Component</th><th>Type</th><th>Position</th><th>Side</th><th>First</th><th>Last</th><th>X</th><th>Y</th>
             </tr>
         </thead>
         <tbody>
-    {% for f in ['F01','F02','F03','F04','F05','F06','F07','F08','F09','F10','F11','F12','F13','F14','F15'] %}
-        {% if data[f] %}
-        {% set fiber = data[f] %}
-
-        {% for s in fiber %}
-            {% if s.sensor_type %}
-                <tr>
-                    <td>{{fiber[0].fiber}}</td>
-                    <td>{{s.sensor}}</td>
-                    <td>{% if s.component_id %}{{s.component_id[0:3]}}{% else %}{% endif %}</td>
-                    <td>{% if s.component_id %}{{s.component_id}}{% else %}{% endif %}</td>                    
-                    <td>{{s.x}}</td>
-                    <td>{{s.y}}</td>
-                    <td>{% if s.sensor_type == 'temperature'%}temp{% else %}strain{% endif %}</td>
-                    <td>{{s.angle}}</td>
-                    <td>{{s.side}}</td>
-                    <td>{{s.fromTop}}</td>
-                    <td>{{s.fromLeft}}</td>
-                    <td>{{s.sensorSpacing}}</td>
-                    <td>{{s.fromRight}}</td>
-                    <td>{{s.note}}</td>
-                </tr>
-            {% endif %}
+    {% for fiber in data.fibers %}
+        {% for c in fiber.fiberComponent %}
+        {% for s in c.sensorTypes %}
+            <tr>
+                <td>{{fiber.fiberId}}</td>
+                <td>{{c.componentId.label}}</td>
+                <td>{{s['sensorType']}}</td>
+                <td>{{s.position}}</td>
+                <td>{{s.side}}</td>
+                <td>{{s.typeFirst}}</td>
+                <td>{{s.typeLast}}</td>
+                <td>{{s.customX}}</td>
+                <td>{{s.customY}}</td>
+            </tr>
         {% endfor %}
-        {% endif %}
+        {% endfor %}
     {% endfor %}
         </tbody>
     </table>
 
-    <h1>Algorithms</h1>
-    <h3>Deflection</h3>
-    <table id="deflection" class="display">
-        <thead>
-            <tr>
-                <th>ID</th><th>Type</th><th>Fiber</th><th>Component</th>
-                <th>Sensor Type</th><th>Sensors Top</th><th>Sensors Bottom</th>
-            </tr>
-        </thead>
-        <tbody>
-    {% for d in data.deflection %}
-        <tr>
-            <td>{{d.id}}</td>
-            <td>{{d.algorithm_type}}</td>
-            <td>{{d.fiber_id}}</td>
-            <td>{{d.component_id}}</td>
-            <td>sensor_pair_array</td>
-            <td>{{d.sensors_top}}</td>
-            <td>{{d.sensors_bottom}}</td>
-        </tr>
-    {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Girder Shear</h3>
-    <table id="shear" class="display">
-        <thead>
-            <tr>
-                <th>ID</th><th>Type</th><th>Fiber</th><th>Component</th>
-                <th>Sensor Type</th><th>0 deg</th><th>45 deg</th><th>90 deg</th>
-            </tr>
-        </thead>
-        <tbody>
-    {% for s in data.shear %}
-        <tr>
-            <td>{{s.id}}</td>
-            <td>{{s.algorithm_type}}</td>
-            <td>{{s.fiber_id}}</td>
-            <td>{{s.component_id}}</td>
-            <td>3d_rosette</td>
-            <td>{{s.rosette_0}}</td>
-            <td>{{s.rosette_45}}</td>
-            <td>{{s.rosette_90}}</td>
-        </tr>
-    {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Girder Bending Moment</h3>
-    <table id="bending_moment" class="display">
-        <thead>
-            <tr>
-                <th>ID</th><th>Type</th><th>Fiber</th><th>Component</th>
-                <th>Sensor Type</th><th>Sensor Top</th><th>Sensor Bottom</th>
-            </tr>
-        </thead>
-        <tbody>
-    {% for b in data.bending_moment %}
-        <tr>
-            <td>{{b.id}}</td>
-            <td>{{b.algorithm_type}}</td>
-            <td>{{b.fiber_id}}</td>
-            <td>{{b.component_id}}</td>
-            <td>sensor_pair</td>
-            <td>{{b.sensor_top}}</td>
-            <td>{{b.sensor_bottom}}</td>
-        </tr>
-    {% endfor %}
-        </tbody>
-    </table>
-
-    <svg id="cont" height="5000" width="5000"
-        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    </svg>
     </div>
     <script>
         $(document).ready( function () {
@@ -240,9 +156,6 @@
             $('#structure').DataTable({"order": []});
             $('#componentTypes').DataTable({"order": []});
             $('#fibers').DataTable({"order": []});
-            $('#deflection').DataTable({"order": []});
-            $('#shear').DataTable({"order": []});
-            $('#bending_moment').DataTable({"order": []});
         } );
 
         function build_xls() {
@@ -252,91 +165,9 @@
             payload.push(convert_table_to_csv("structure"));
             payload.push(convert_table_to_csv("componentTypes"));
             payload.push(convert_table_to_csv("fibers"));
-            payload.push(convert_table_to_csv("deflection"));
-            payload.push(convert_table_to_csv("shear"));
-            payload.push(convert_table_to_csv("bending_moment"));
             download_tables(payload)
         }
 
-        function drawStuff() {
-            let count = -1;
-            let scalex = 1;
-            let scaley = 1;
-            let origin = 0;
-
-    {% for c in data.components %}
-            {% set jinja_template = data.jinja_template %}
-            {% set component_types = [] %}
-            {% set ns.component_type = {} %}
-            {% if c.componentType.value %}
-            {% for x in data.componentTypes if x.componentType == c.componentType.value %}{% set ns.component_type = x %}{% endfor %}
-            {% else %}
-            {% for x in data.componentTypes if x.componentType == c.componentType %}{% set ns.component_type = x %}{% endfor %}
-            {% endif %}
-            {% set height = ns.component_type.height %}
-            {% set length = ns.component_type.length %}
-            add_component('{{c.component_id}}', 'type', count, '{{length}}', '{{height}}');
-            scalex = (9.0 / {{length}});
-            scaley = (0.81 / {height}});
-        {% for f in data.all_fibers %}
-            {% if data[f] %}
-                {% set fiber = data[f] %}
-                {% for s in fiber %}
-                {% if s.sensor_type and s.component_id ==  c.component_id %}
-            origin = {{s.y}};
-            if ('{{jinja_template}}' != 'v1.1') {
-                origin = {{height}} - {{s.y}};
-            }
-            add_sensor('{{fiber[0].fiber}}', {{s.x}}, {{s.y}}, '{{s.sensor}}', '{% if s.sensor_type.startswith('girder') %}girder{% else %}{{s.sensor_type}}{% endif %}', {{s.angle}}, count, scalex, scaley, origin, '{{s.side}}');
-                {% endif %}
-            {% endfor %}
-            {% endif %}
-        {% endfor %}
-            count += 1;
-    {% endfor %}
-
-    {% set jinja_template = data.jinja_template %}
-       count = -1;
-    {% for f in data.all_fibers %}
-        {% if data[f] and data[f][0].fiber != '' %}
-        // {{data[f][0].fiber}}
-            {% set fiber = data[f] %}
-            {% set ns.componentId = "" %}
-            {% set ns.side = "" %}
-            add_fiber('{{fiber[0].fiber}}', count + 1);
-            {% for s in fiber %}
-                {% if s.sensor_type and (s.component_id != ns.componentId) %}
-                    {% for c in data.structure %}
-                        {% if s.component_id == c.componentId %}
-                            {% set ns.component_type = {} %}
-                            {% if c.componentType.value %}
-                            {% for x in data.componentTypes if x.componentType == c.componentType.value %}{% set ns.component_type = x %}{% endfor %}
-                            {% else %}
-                            {% for x in data.componentTypes if x.componentType == c.componentType %}{% set ns.component_type = x %}{% endfor %}
-                            {% endif %}
-                            {% set height = ns.component_type.height %}
-                            {% set length = ns.component_type.length %}
-                            {% set ns.height = height %}
-                            scalex = (9.0 / {{length}});
-                            scaley = (0.81 / {{height}});
-                            count += 1;
-                            add_component('{{c.componentId}}', '{{c.componentType.value}}', count, '{{length}}', '{{height}}');
-                        {% if 'Girder' in c.componentType.value %}
-                            add_image('../../static/BottomUp.png', count, '{{length}}', '{{height}}')
-                        {% endif %}
-                            {% set ns.componentId = s.component_id %}
-                            {% set ns.side = s.side %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-                origin = {{ns.height}} - {{s.y}};
-                add_sensor('{{fiber[0].fiber}}', {{s.x}}, {{s.y}}, '{{s.sensor}}', '{{s.sensor_type}}', {{s.angle}}, count, scalex, scaley, origin, '{{s.side}}');
-            {% endfor %}
-            draw_fiber('{{f}}');
-        {% endif %}
-    {% endfor %}
-        }
-        drawStuff();
     </script>
 </body>
 </html>

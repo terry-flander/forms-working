@@ -20,14 +20,16 @@ def render_template(template, data):
     app_logger.info(f'template: {templateFile}')
     try:
         template = env.get_template(templateFile + ('' if templateFile.endswith('.jinja') else '.jinja'))
-        return template.render(data=data)
+        return template.render(data=data['data'])
     except TemplateSyntaxError as ex:
         app_logger.warning(f'{ex.message} line {ex.lineno} name {ex.name} filename: {ex.filename}')
         return None
     except TemplateError as ex:
+        app_logger.warning(data)
         app_logger.warning(ex)
         return None
     except Exception as ex:
+        app_logger.error(data)
         app_logger.error(f'{templateFile} {ex}')
         return None
 
